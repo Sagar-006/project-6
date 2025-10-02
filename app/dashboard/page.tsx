@@ -23,7 +23,7 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "@/context/socket-context";
 import jwt from "jsonwebtoken";
-import StreamView from "@/components/StreamView";
+import StreamView from "@/components/OldStreamView";
 import ErrorScreen from "@/components/ErrorScreen";
 import LoadingScreen from "@/components/LoadingScreen";
 
