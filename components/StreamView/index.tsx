@@ -1,164 +1,104 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 
-import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
+interface Video {
+  id:string;
+  title:string;
+  upvotes:number;
+  downvotes:number;
+}
+export default function StreamView() {
+  const [inputLink,setInputLink] = useState("");
+  const [queue,setQueue] = useState<Video[]>([
+    { id: '1', title: "Awesome Song 1", upvotes: 5, downvotes: 1 },
+    { id: '2', title: "Cool Music Video", upvotes: 3, downvotes: 0 },
+    { id: '3', title: "Top Hit 2023", upvotes: 2, downvotes: 1 },
+  ]);
 
-import { useSocket } from "@/context/socket-context";
-import { useSession } from "next-auth/react";
-import NowPlaying from "./NowPlaying";
-import Queue from "./Queue";
-import AddSongForm from "./AddSongForm";
-import { Appbar } from "../Appbar";
-
-export default function StreamView({
-  creatorId,
-  playVideo = false,
-  spaceId,
-}: {
-  creatorId: string;
-  playVideo: boolean;
-  spaceId: string;
-}) {
-  const [inputLink, setInputLink] = useState("");
-  const [queue, setQueue] = useState<Video[]>([]);
-  const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [playNextLoader, setPlayNextLoader] = useState(false);
-  const [spaceName, setSpaceName] = useState("");
-
-  const { socket, sendMessage } = useSocket();
-  const user = useSession().data?.user;
+  const [currentVideo,setCurrentVideo] = useState<Video | null>(null);
 
   useEffect(() => {
-    if (socket) {
-      socket.onmessage = async (event) => {
-        const { type, data } = JSON.parse(event.data) || {};
-        if (type === `new-stream/${spaceId}`) {
-          console.log(type);
-          addToQueue(data);
-        } else if (type === `new-vote/${spaceId}`) {
-          setQueue((prev) => {
-            return prev
-              .map((v) => {
-                if (v.id === data.streamId) {
-                  return {
-                    ...v,
-                    upvotes: v.upvotes + (data.vote === "upvote" ? 1 : -1),
-                    haveUpvoted:
-                      data.votedBy === user?.id
-                        ? data.vote === "upvote"
-                        : v.haveUpvoted,
-                  };
-                }
-                return v;
-              })
-              .sort((a, b) => b.upvotes - a.upvotes);
-          });
-        } else if (type === "error") {
-          enqueueToast("error", data.message);
-          setLoading(false);
-        } else if (type === `play-next/${spaceId}`) {
-          await refreshStreams();
-        } else if (type === `remove-song/${spaceId}`) {
-          setQueue((prev) => {
-            return prev.filter((stream) => stream.id !== data.streamId);
-          });
-        } else if (type === `empty-queue/${spaceId}`) {
-          setQueue([]);
-        }
-      };
+    refreshStreams
+  },[])
+
+  const handleSubmit = (e:React.FormEvent) => {
+    e.preventDefault();
+
+    const newVideo:Video = {
+      id:String(queue.length + 1),
+      title:`New Song ${queue.length + 1}`,
+      upvotes:0,
+      downvotes:0,
     }
-  }, [socket]);
-
-  useEffect(() => {
-    refreshStreams();
-  }, []);
-
-  async function addToQueue(newStream: any) {
-    setQueue((prev) => [...prev, newStream]);
-    setInputLink("");
-    setLoading(false);
+    setQueue([...queue,newVideo])
+    setInputLink('')
   }
-
-  async function refreshStreams() {
-    try {
-      const res = await fetch(`/api/streams/?spaceId=${spaceId}`, {
-        credentials: "include",
-      });
-      const json = await res.json();
-      setQueue(
-        json.streams.sort((a: any, b: any) => (a.upvotes < b.upvotes ? 1 : -1))
-      );
-
-      setCurrentVideo((video) => {
-        if (video?.id === json.activeStream?.stream?.id) {
-          return video;
-        }
-        return json.activeStream.stream;
-      });
-      setSpaceName(json.spaceName);
-    } catch (error) {
-      enqueueToast("error", "Something went wrong");
-    }
-
-    setPlayNextLoader(false);
-  }
-
-  const playNext = async () => {
-    setPlayNextLoader(true);
-    sendMessage("play-next", {
-      spaceId,
-      userId: user?.id,
-    });
-  };
-
-  const enqueueToast = (type: "error" | "success", message: string) => {
-    const toastFn = type === "error" ? toast.error : toast.success;
-
-    toastFn(message, {
-      duration: 5000,
-    });
-  };
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Appbar isSpectator={!playVideo} />
-      <div className="mx-auto rounded-lg p-2 bg-gradient-to-r from-indigo-600 to-violet-800 text-2xl font-bold">
-        {spaceName}
-      </div>
-      <div className="flex justify-center">
-        <div className="grid w-screen max-w-screen-xl grid-cols-1 gap-4 pt-8 md:grid-cols-5">
-          <Queue
-            creatorId={creatorId}
-            isCreator={playVideo}
-            queue={queue}
-            userId={user?.id || ""}
-            spaceId={spaceId}
+    <form className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Song Voting Queue</h1>
+          <Button
+            variant="outline"
+            className="bg-purple-600 hover:bg-purple-700 text-white border-0"
+          >
+            <Share2 className="w-4 h-4 mr-2" /> Share
+          </Button>
+        </div>
+
+        {/* Add to Queue */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Paste YouTube link here"
+            className="bg-gray-900 border-gray-700"
+            onChange={(e) => setInputLink(e.target.value)}
           />
-          <div className="col-span-2">
-            <div className="mx-auto w-full max-w-4xl space-y-6 p-4">
-              <AddSongForm
-                creatorId={creatorId}
-                userId={user?.id || ""}
-                enqueueToast={enqueueToast}
-                inputLink={inputLink}
-                loading={loading}
-                setInputLink={setInputLink}
-                setLoading={setLoading}
-                spaceId={spaceId}
-                isSpectator={!playVideo}
-              />
-              <NowPlaying
-                currentVideo={currentVideo}
-                playNext={playNext}
-                playNextLoader={playNextLoader}
-                playVideo={playVideo}
-              />
-            </div>
+          <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+            Add to Queue
+          </Button>
+        </div>
+
+        {/* Now Playing */}
+        <Card className="bg-gray-900 border-0">
+          <CardHeader className="font-semibold text-lg">Now Playing</CardHeader>
+          <CardContent className="flex flex-col items-center justify-center text-gray-400 h-32">
+            No video playing
+          </CardContent>
+        </Card>
+
+        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+          ▶ Play Next
+        </Button>
+
+        {/* Upcoming Songs */}
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Upcoming Songs</h2>
+          <div className="space-y-3">
+            {songs.map((song) => (
+              <Card key={song.id} className="bg-gray-900 border-0">
+                <CardContent className="flex justify-between items-center p-4">
+                  <span className="font-medium">{song.title}</span>
+                  <div className="flex gap-3">
+                    <div className="flex items-center gap-1 text-sm">
+                      <ThumbsUp className="w-4 h-4" /> {song.up}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm">
+                      <ThumbsDown className="w-4 h-4" /> {song.down}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

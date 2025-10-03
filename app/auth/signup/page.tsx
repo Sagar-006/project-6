@@ -34,29 +34,46 @@ const Signup = () => {
     );
   };
 
+  const GoogleSignup = async () =>{
+    const data = await authClient.signIn.social({
+      provider:"google"
+    },);
+
+    if(data){
+      redirect("/dashboard")
+    }
+  }
   return (
-    <form onSubmit={handleSubmit} className='flex w-full h-full flex-col items-center justify-center gap-y-4 '>
-      <Input
-        type="text"
-        value={name}
-        placeholder="Name"
-        onChange={(e) => setName(e.target.value)}
-        className={` w-32 `}
-      />
-      <input
-        type="email"
-        value={email}
-        placeholder="email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        value={password}
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit" className="border-2 px-10">Submit</button>
-    </form>
+    <div>
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full h-full flex-col items-center justify-center gap-y-4 "
+      >
+        <Input
+          type="text"
+          value={name}
+          placeholder="Name"
+          onChange={(e) => setName(e.target.value)}
+          className={` w-32 `}
+        />
+        <input
+          type="email"
+          value={email}
+          placeholder="email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          value={password}
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit" className="border-2 px-10">
+          Submit
+        </button>
+      </form>
+      <button onClick={GoogleSignup}>Signup with Google</button>
+    </div>
   );
 };
 

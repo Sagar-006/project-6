@@ -20,9 +20,7 @@ import LiteYouTubeEmbed from "react-lite-youtube-embed";
 import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
 import { YT_REGEX } from "../lib/utils";
 import YouTubePlayer from "youtube-player";
-// import { useSession } from "next-auth/react";
-// // import type { Session } from "next-auth";
-import { Session } from "@/app/lib/auth";
+
 import Image from "next/image";
 import {
   Dialog,

@@ -5,17 +5,19 @@ import { Users, Radio, Headphones } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "./lib/session";
 import Navbar from "@/components/Navbar";
+import { AuthCheck } from "./lib/AuthCheck";
 
 export default async function LandingPage() {
-  const session = await getSession();
+  // const session = await getSession();
 
-  if(session){
-    redirect("/dashboard")
-  }
+  // if(session){
+  //   redirect("/dashboard")
+  // }
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* <Appbar showThemeSwitch={false} /> */}
+      <AuthCheck/>
       <div className="w-full"><Navbar/></div>
       <main className="flex-1 py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6">
