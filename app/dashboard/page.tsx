@@ -5,16 +5,16 @@ import StreamView from "@/components/StreamView";
 
 export default async function Dashboard(){
   const session = await getSession();
-  // if(!session){
-  //   redirect("/auth/signup")
-  // }
+  if(!session){
+    redirect("/auth/signup")
+  }
 
-  return(
+  return (
     <div>
-      <h1>Welcome {session?.user.name} </h1>
-      
-        <StreamView/>
-      
+      <div>
+        <h1>Welcome {session?.user.name} </h1>
+      </div>
+      <StreamView />
     </div>
-  )
+  );
 } 

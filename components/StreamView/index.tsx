@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import axios from 'axios';
+
 
 interface Video {
   id:string;
@@ -12,6 +14,8 @@ interface Video {
   upvotes:number;
   downvotes:number;
 }
+
+const REFRESH_INTERVAL_MS = 10 * 1000;
 export default function StreamView() {
   const [inputLink,setInputLink] = useState("");
   const [queue,setQueue] = useState<Video[]>([
@@ -22,8 +26,18 @@ export default function StreamView() {
 
   const [currentVideo,setCurrentVideo] = useState<Video | null>(null);
 
+  async function refreshStreams(){
+    const res = await axios.get(`/api/streams/my`,{
+      withCredentials:true
+    });
+    console.log(res)
+  }
+
   useEffect(() => {
-    refreshStreams
+    refreshStreams();
+    const Interval = setInterval(() => {
+      
+    },REFRESH_INTERVAL_MS)
   },[])
 
   const handleSubmit = (e:React.FormEvent) => {
@@ -39,8 +53,29 @@ export default function StreamView() {
     setInputLink('')
   }
 
+  const handleVote = (id:string,isUpvote:boolean) => {
+    setQueue(queue.map(video => 
+      video.id === id ? {
+        ...video,
+        upvotes:isUpvote ? video.upvotes + 1 : video.upvotes,
+      }
+      : video
+    ).sort((a,b)=> (b.upvotes) - (a.upvotes)))
+
+    axios.post('/api/streams/upvote',{
+      data:{
+        userId:"abc",
+        streamId:id,
+
+      }
+    })
+  }
+
+  const playNext = () => {
+    
+  } 
   return (
-    <form className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -54,16 +89,19 @@ export default function StreamView() {
         </div>
 
         {/* Add to Queue */}
-        <div className="flex gap-2">
+        <form className="flex gap-2" onSubmit={handleSubmit}>
           <Input
             placeholder="Paste YouTube link here"
             className="bg-gray-900 border-gray-700"
             onChange={(e) => setInputLink(e.target.value)}
           />
-          <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+          <Button
+            type="submit"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+          >
             Add to Queue
           </Button>
-        </div>
+        </form>
 
         {/* Now Playing */}
         <Card className="bg-gray-900 border-0">
@@ -78,27 +116,39 @@ export default function StreamView() {
         </Button>
 
         {/* Upcoming Songs */}
-        <div>
+        <div className="space-y-4">
           <h2 className="text-lg font-semibold mb-3">Upcoming Songs</h2>
-          <div className="space-y-3">
-            {songs.map((song) => (
-              <Card key={song.id} className="bg-gray-900 border-0">
-                <CardContent className="flex justify-between items-center p-4">
-                  <span className="font-medium">{song.title}</span>
-                  <div className="flex gap-3">
-                    <div className="flex items-center gap-1 text-sm">
-                      <ThumbsUp className="w-4 h-4" /> {song.up}
-                    </div>
-                    <div className="flex items-center gap-1 text-sm">
-                      <ThumbsDown className="w-4 h-4" /> {song.down}
-                    </div>
+
+          {queue.map((video) => (
+            <Card key={video.id} className="bg-gray-900 border-gray-800">
+              <CardContent className="p-4 flex items-center space-x-4">
+                <img
+                  src={video.smallImg}
+                  alt="LoadingImg..."
+                  className="w-30 h-20 object-cover rounded"
+                />
+
+                <div>
+                  <h3 className="font-semibold text-white">{video.title}</h3>
+                  <div className="flex items-center space-x-2 mt-2 ">
+                    <Button
+                    variant={'outline'}
+                    size={'sm'}
+                    onClick={() => handleVote(video.id,true)}
+                    className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                    >
+                      <ThumbsUp className="h-4 w-4"/>
+                      <span>{video.upvotes}</span>
+
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-    </form>
+    </div>
   );
 }
