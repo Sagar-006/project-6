@@ -9,12 +9,15 @@ export default async function Dashboard(){
     redirect("/auth/signup")
   }
 
+  const userId =  session.user.id;
+  console.log(userId)
+
   return (
     <div>
       <div>
         {/* <h1>Welcome {session?.user.name} </h1> */}
       </div>
-      <StreamView />
+      <StreamView userId={userId}/>
     </div>
   );
 } 

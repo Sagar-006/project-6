@@ -5,75 +5,99 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
-import axios from 'axios';
-
+import axios from "axios";
+import { url } from "inspector";
 
 interface Video {
-  id:string;
-  title:string;
-  upvotes:number;
-  downvotes:number;
+  id: string;
+  title: string;
+  upvotes: number;
+  downvotes: number;
+}
+
+interface StreamViewType {
+  userId: any;
 }
 
 const REFRESH_INTERVAL_MS = 10 * 1000;
-export default function StreamView() {
-  const [inputLink,setInputLink] = useState("");
-  const [queue,setQueue] = useState<Video[]>([
-    { id: '1', title: "Awesome Song 1", upvotes: 5, downvotes: 1 },
-    { id: '2', title: "Cool Music Video", upvotes: 3, downvotes: 0 },
-    { id: '3', title: "Top Hit 2023", upvotes: 2, downvotes: 1 },
-  ]);
+export default function StreamView({ userId }: StreamViewType) {
+  console.log("this is userId", userId);
+  const [inputLink, setInputLink] = useState("");
 
-  const [currentVideo,setCurrentVideo] = useState<Video | null>(null);
+  const [queue, setQueue] = useState<Video[]>([]);
 
-  async function refreshStreams(){
-    const res = await axios.get(`/api/streams/my`,{
-      withCredentials:true
+  const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
+
+  async function refreshStreams() {
+    const res = await axios.get(`/api/streams/my`, {
+      withCredentials: true,
     });
-    console.log(res)
+    console.log(res);
   }
 
   useEffect(() => {
     refreshStreams();
-    const Interval = setInterval(() => {
-      
-    },REFRESH_INTERVAL_MS)
-  },[])
+    const Interval = setInterval(() => {}, REFRESH_INTERVAL_MS);
+  }, []);
 
-  const handleSubmit = (e:React.FormEvent) => {
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newVideo:Video = {
-      id:String(queue.length + 1),
-      title:`New Song ${queue.length + 1}`,
-      upvotes:0,
-      downvotes:0,
+    if (!inputLink.trim()) {
+      alert("Please enter a YouTube link");
+      return;
     }
-    setQueue([...queue,newVideo])
-    setInputLink('')
-  }
 
-  const handleVote = (id:string,isUpvote:boolean) => {
-    setQueue(queue.map(video => 
-      video.id === id ? {
-        ...video,
-        upvotes:isUpvote ? video.upvotes + 1 : video.upvotes,
-      }
-      : video
-    ).sort((a,b)=> (b.upvotes) - (a.upvotes)))
+    try {
+      // ✅ Send POST request with credentials
+      const res = await axios.post(
+        `/api/streams`,
+        { creatorId: userId, url: inputLink },
+        { withCredentials: true } // Important: include session cookies
+      );
 
-    axios.post('/api/streams/upvote',{
-      data:{
-        userId:"abc",
-        streamId:id,
+      console.log("Response from backend", res.data);
 
-      }
-    })
-  }
+      // Update the queue locally
+      // const newVideo: Video = {
+      //   id: String(queue.length + 1),
+      //   title: res.data.title || `New Song ${queue.length + 1}`,
+      //   upvotes: 0,
+      //   downvotes: 0,
+      // };
+      // setQueue([...queue, newVideo]);
 
-  const playNext = () => {
-    
-  } 
+      // setInputLink(""); // clear input
+    } catch (err: any) {
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Error adding song to queue");
+    }
+  };
+
+  const handleVote = (id: string, isUpvote: boolean) => {
+    setQueue(
+      queue
+        .map((video) =>
+          video.id === id
+            ? {
+                ...video,
+                upvotes: isUpvote ? video.upvotes + 1 : video.upvotes,
+              }
+            : video
+        )
+        .sort((a, b) => b.upvotes - a.upvotes)
+    );
+
+    axios.post("/api/streams/upvote", {
+      data: {
+        userId: "abc",
+        streamId: id,
+      },
+    });
+  };
+
+  const playNext = () => {};
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -123,7 +147,6 @@ export default function StreamView() {
             <Card key={video.id} className="bg-gray-900 border-gray-800">
               <CardContent className="p-4 flex items-center space-x-4">
                 <img
-                  
                   alt="LoadingImg..."
                   className="w-30 h-20 object-cover rounded"
                 />
@@ -132,17 +155,15 @@ export default function StreamView() {
                   <h3 className="font-semibold text-white">{video.title}</h3>
                   <div className="flex items-center space-x-2 mt-2 ">
                     <Button
-                    variant={'outline'}
-                    size={'sm'}
-                    onClick={() => handleVote(video.id,true)}
-                    className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                      variant={"outline"}
+                      size={"sm"}
+                      onClick={() => handleVote(video.id, true)}
+                      className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
                     >
-                      <ThumbsUp className="h-4 w-4"/>
+                      <ThumbsUp className="h-4 w-4" />
                       <span>{video.upvotes}</span>
-
                     </Button>
                   </div>
-                    
                 </div>
               </CardContent>
             </Card>
