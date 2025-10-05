@@ -123,7 +123,7 @@ export default function StreamView() {
             <Card key={video.id} className="bg-gray-900 border-gray-800">
               <CardContent className="p-4 flex items-center space-x-4">
                 <img
-                  src={video.smallImg}
+                  
                   alt="LoadingImg..."
                   className="w-30 h-20 object-cover rounded"
                 />

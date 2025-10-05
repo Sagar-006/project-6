@@ -1,8 +1,11 @@
+export const runtime = "nodejs";
+
 import { getSession } from "@/app/lib/session";
 import { YT_REGEX } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import youtubesearchapi from "youtube-search-api";
+import yts from "yt-search";
 import { authClient } from "@/app/lib/auth-client";
 import db from "@/app/lib/db";
 
@@ -59,7 +62,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const res = await youtubesearchapi.GetVideoDetails(videoId);
+    // const res = await youtubesearchapi.GetVideoDetails(videoId);
+    const res = await yts({ videoId });
+    console.log(res);
+
+    if (!res) {
+      return NextResponse.json({
+        message: "No Response from Youtube-Api!",
+      });
+    }
 
     // Check if the user is not the creator
     if (user.id !== data.creatorId) {
@@ -85,6 +96,7 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+      console.log("Reached duplicateSong check");
 
       if (duplicateSong) {
         return NextResponse.json(
@@ -155,6 +167,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      console.log("Reached stream create");
       const stream = await db.stream.create({
         data: {
           userId: data.creatorId,
@@ -180,6 +193,7 @@ export async function POST(req: NextRequest) {
         hasUpvoted: false,
         upvotes: 0,
       });
+      console.log("Reached end of POST handler");
     }
   } catch (e) {
     console.error(e);
@@ -277,15 +291,15 @@ export async function POST(req: NextRequest) {
 //   });
 // }
 
-export async function GET(req:NextRequest){
+export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
   const streams = await db.stream.findMany({
-    where:{
-      userId:creatorId ?? ""
-    }
+    where: {
+      userId: creatorId ?? "",
+    },
   });
 
   return NextResponse.json({
-    streams
-  })
+    streams,
+  });
 }

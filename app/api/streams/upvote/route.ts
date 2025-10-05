@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
           message: "StreamId is missing",
         },
         {
-          status: 4,
+          status: 403,
         }
       );
     }
