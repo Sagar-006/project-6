@@ -4,15 +4,20 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import {ChevronDown,ChevronUp, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 import axios from "axios";
-import { url } from "inspector";
 
 interface Video {
   id: string;
+  type:string;
   title: string;
+  url:string;
+  extractedId:string;
+  smallImg:string;
+  bigImg:string;
+  active:boolean;
   upvotes: number;
-  downvotes: number;
+  haveUpvoted:boolean;
 }
 
 interface StreamViewType {
@@ -21,12 +26,11 @@ interface StreamViewType {
 
 const REFRESH_INTERVAL_MS = 10 * 1000;
 export default function StreamView({ userId }: StreamViewType) {
-  console.log("this is userId", userId);
+  // console.log("this is userId", userId);
   const [inputLink, setInputLink] = useState("");
-
   const [queue, setQueue] = useState<Video[]>([]);
-
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
+
 
   async function refreshStreams() {
     const res = await axios.get(`/api/streams/my`, {
@@ -41,9 +45,9 @@ export default function StreamView({ userId }: StreamViewType) {
     const streams = await axios.get(`/api/streams/?creatorId=${userId}`, {
       withCredentials: true,
     });
-    console.log("this is streams data", streams.data);
+    console.log("this is streams data", streams.data.streams);
 
-    setQueue(streams.data);
+    setQueue(streams.data.streams);
   }
 
   useEffect(() => {
@@ -89,29 +93,48 @@ export default function StreamView({ userId }: StreamViewType) {
 
   console.log("this is queue",queue)
 
-  const handleVote = (id: string, isUpvote: boolean) => {
+  const handleVote = async (id: string, isUpvote: boolean) => {
     setQueue(
       queue
         .map((video) =>
           video.id === id
             ? {
                 ...video,
-                upvotes: isUpvote ? video.upvotes + 1 : video.upvotes,
+                upvotes: isUpvote ? video.upvotes + 1 : video.upvotes - 1,
+                haveUpvoted:!video.haveUpvoted
               }
             : video
         )
         .sort((a, b) => b.upvotes - a.upvotes)
+
     );
 
-    axios.post("/api/streams/upvote", {
-      data: {
-        userId: "abc",
-        streamId: id,
+    try{
+      const res = await axios.post(
+      `/api/streams/{${isUpvote ? "downvote" : "upvote"}}`,
+      {
+        userId:userId,
+        streamId:id
+
       },
-    });
+      {
+        withCredentials:true,
+      }
+    );
+
+    console.log("this is upvote res",res.data)
+    }
+    catch(e){
+      console.log(e)
+    }
   };
 
-  const playNext = () => {};
+  const playNext = () => {
+    if(queue.length > 0){
+      setCurrentVideo(queue[0]);
+      setQueue(queue.slice(1));
+    }
+  };
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -145,7 +168,20 @@ export default function StreamView({ userId }: StreamViewType) {
         <Card className="bg-gray-900 border-0">
           <CardHeader className="font-semibold text-lg">Now Playing</CardHeader>
           <CardContent className="flex flex-col items-center justify-center text-gray-400 h-32">
-            No video playing
+            {currentVideo ? (
+              <>
+                <img
+                  src="/placeholder.svg?height=360&width=640"
+                  alt="current video"
+                  className="w-full h-72 object-cover rounded "
+                />
+                <p>{currentVideo.title}</p>
+              </>
+            ) : (
+              <p className="text-center py-8 text-gray-400 ">
+                No video playing
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -161,6 +197,7 @@ export default function StreamView({ userId }: StreamViewType) {
             <Card key={video.id} className="bg-gray-900 border-gray-800">
               <CardContent className="p-4 flex items-center space-x-4">
                 <img
+                  src={video.smallImg}
                   alt="LoadingImg..."
                   className="w-30 h-20 object-cover rounded"
                 />
@@ -171,10 +208,14 @@ export default function StreamView({ userId }: StreamViewType) {
                     <Button
                       variant={"outline"}
                       size={"sm"}
-                      onClick={() => handleVote(video.id, true)}
+                      onClick={() => handleVote(video.id, video.haveUpvoted ? false : true)}
                       className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
                     >
-                      <ThumbsUp className="h-4 w-4" />
+                      {video.haveUpvoted ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronUp className="h-4 w-4" />
+                      )}
                       <span>{video.upvotes}</span>
                     </Button>
                   </div>
