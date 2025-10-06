@@ -8,6 +8,7 @@ import * as youtubesearchapi from "youtube-search-api";
 import yts from "yt-search";
 import { authClient } from "@/app/lib/auth-client";
 import db from "@/app/lib/db";
+import { traceGlobals } from "next/dist/trace/shared";
 
 const CreateStreamSchema = z.object({
   creatorId: z.string(),
@@ -147,11 +148,9 @@ export async function POST(req: NextRequest) {
       //   );
       // }
       
-      // const thumbnails = res.thumbnail.thumnails;
-
-      // thumbnails.sort((a: { width: number }, b: { width: number }) =>
-      //   a.width < b.width ? -1 : 1
-      // );
+      const thumbnails = ytRes.thumbnail.thumbnails;
+      console.log(thumbnails);
+      thumbnails.sort((a: { width: number }, b: { width: number }) => a.width < b.width ? -1 : 1);
 
       // const existingActiveStreams = await db.stream.count({
       //   where: {
@@ -179,14 +178,14 @@ export async function POST(req: NextRequest) {
           url: data.url,
           extractedId: videoId,
           type: "Youtube",
-          title: "can't find video",
+          title: ytRes.title ?? "can't find video",
           smallImg:
-            // (thumbnails.length > 1
-            //   ? thumbnails[thumbnails.length - 2].url
-            //   : thumbnails[thumbnails.length - 1].url) ??
+            (thumbnails.length > 1
+              ? thumbnails[thumbnails.length - 2].url
+              : thumbnails[thumbnails.length - 1].url) ??
             "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
           bigImg:
-            // thumbnails[thumbnails.length - 1].url ??
+            thumbnails[thumbnails.length - 1].url ??
             "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
           // spaceId: data.spaceId,
         },
@@ -305,5 +304,5 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     streams,
-  });
+  },{status:200});
 }

@@ -15,7 +15,7 @@ export default async function Dashboard(){
   return (
     <div>
       <div>
-        {/* <h1>Welcome {session?.user.name} </h1> */}
+        <h1>Welcome {session?.user.name} </h1>
       </div>
       <StreamView userId={userId}/>
     </div>

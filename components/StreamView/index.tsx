@@ -32,11 +32,23 @@ export default function StreamView({ userId }: StreamViewType) {
     const res = await axios.get(`/api/streams/my`, {
       withCredentials: true,
     });
-    console.log(res);
+    console.log("this is incide refreshStreams function",res);
+
+    
+  }
+
+  async function getStreams() {
+    const streams = await axios.get(`/api/streams/?creatorId=${userId}`, {
+      withCredentials: true,
+    });
+    console.log("this is streams data", streams.data);
+
+    setQueue(streams.data);
   }
 
   useEffect(() => {
     refreshStreams();
+    getStreams();
     const Interval = setInterval(() => {}, REFRESH_INTERVAL_MS);
   }, []);
 
@@ -57,7 +69,7 @@ export default function StreamView({ userId }: StreamViewType) {
         { withCredentials: true } // Important: include session cookies
       );
 
-      console.log("Response from backend", res.data);
+      // console.log("Response from backend", res.data);
 
       // Update the queue locally
       // const newVideo: Video = {
@@ -74,6 +86,8 @@ export default function StreamView({ userId }: StreamViewType) {
       alert(err.response?.data?.message || "Error adding song to queue");
     }
   };
+
+  console.log("this is queue",queue)
 
   const handleVote = (id: string, isUpvote: boolean) => {
     setQueue(
