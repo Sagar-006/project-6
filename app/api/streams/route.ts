@@ -202,6 +202,7 @@ export async function POST(req: NextRequest) {
     console.error(e);
     return NextResponse.json(
       {
+        error:e,
         message: "Error while adding a stream",
       },
       {
@@ -293,7 +294,6 @@ export async function POST(req: NextRequest) {
 //     spaceName: space?.name,
 //   });
 // }
-
 export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
   const streams = await db.stream.findMany({

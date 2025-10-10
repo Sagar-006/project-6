@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {ChevronDown,ChevronUp, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 import axios from "axios";
+import LiteYoutubeEmbed from "react-lite-youtube-embed";
+import { YT_REGEX } from "@/lib/utils";
+
 
 interface Video {
   id: string;
@@ -86,7 +89,7 @@ export default function StreamView({ userId }: StreamViewType) {
 
       // setInputLink(""); // clear input
     } catch (err: any) {
-      console.error(err.response?.data || err.message);
+      console.log(err);
       alert(err.response?.data?.message || "Error adding song to queue");
     }
   };
@@ -164,6 +167,14 @@ export default function StreamView({ userId }: StreamViewType) {
           </Button>
         </form>
 
+        {inputLink && inputLink.match(YT_REGEX)&&(
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-4">
+              <LiteYoutubeEmbed title='' id={inputLink.split("?v=")[1]}/>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Now Playing */}
         <Card className="bg-gray-900 border-0">
           <CardHeader className="font-semibold text-lg">Now Playing</CardHeader>
@@ -173,7 +184,7 @@ export default function StreamView({ userId }: StreamViewType) {
                 <img
                   src="/placeholder.svg?height=360&width=640"
                   alt="current video"
-                  className="w-full h-72 object-cover rounded "
+                  className="w-full h-72 object-cover rounded"
                 />
                 <p>{currentVideo.title}</p>
               </>
@@ -208,7 +219,9 @@ export default function StreamView({ userId }: StreamViewType) {
                     <Button
                       variant={"outline"}
                       size={"sm"}
-                      onClick={() => handleVote(video.id, video.haveUpvoted ? false : true)}
+                      onClick={() =>
+                        handleVote(video.id, video.haveUpvoted ? false : true)
+                      }
                       className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
                     >
                       {video.haveUpvoted ? (

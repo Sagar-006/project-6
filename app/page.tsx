@@ -8,11 +8,11 @@ import Navbar from "@/components/Navbar";
 import { AuthCheck } from "./lib/AuthCheck";
 
 export default async function LandingPage() {
-  // const session = await getSession();
+  const session = await getSession();
 
-  // if(session){
-  //   redirect("/dashboard")
-  // }
+  if(session){
+    redirect("/dashboard")
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
