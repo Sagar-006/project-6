@@ -76,6 +76,8 @@ export async function POST(req: NextRequest) {
     if(checkVideoIsAlreadyExist){
       return NextResponse.json({
         message:"Video is Already In Stream!"
+      },{
+        status:409
       })
     }
 

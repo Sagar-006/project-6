@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
+  
   ChevronDown,
   ChevronUp,
   ThumbsUp,
@@ -14,6 +15,7 @@ import {
 import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
+import { Logout } from "../Logout";
 
 interface Video {
   id: string;
@@ -252,7 +254,9 @@ export default function StreamView({ userId }: StreamViewType) {
             </Card>
           ))}
         </div>
+        
       </div>
+      
     </div>
   );
 }

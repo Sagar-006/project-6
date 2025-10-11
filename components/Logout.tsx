@@ -8,7 +8,7 @@ export function Logout ({children}:{children:React.ReactNode}) {
         const data = await authClient.signOut({
             fetchOptions:{
                 onSuccess:() => {
-                    redirect("/auth/signup")
+                    redirect("/")
                 }
             }
         })
