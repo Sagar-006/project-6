@@ -1,21 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Youtube,{YouTubeProps} from 'react-youtube'
 import {
   
   ChevronDown,
   ChevronUp,
-  ThumbsUp,
-  ThumbsDown,
   Share2,
 } from "lucide-react";
 import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
-import { Logout } from "../Logout";
 
 interface Video {
   id: string;
@@ -40,6 +38,11 @@ export default function StreamView({ userId }: StreamViewType) {
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
 
+  const currentVideoRef = useRef<Video | null>(null);
+  useEffect(() => {
+    currentVideoRef.current = currentVideo;
+  }, [currentVideo]);
+
   async function refreshStreams() {
     const res = await axios.get(`/api/streams/my`, {
       withCredentials: true,
@@ -56,18 +59,28 @@ export default function StreamView({ userId }: StreamViewType) {
 
     setQueue(fetchedStreams);
 
-    if (fetchedStreams.length > 0) {
+    const current = currentVideoRef.current;
+    if (!current && fetchedStreams.length > 0) {
       setCurrentVideo(fetchedStreams[0]);
+    }else if(
+      current && 
+      !fetchedStreams.find((v:Video) => v.id === current.id)&&
+      fetchedStreams.length > 0
+    ){
+      setCurrentVideo(fetchedStreams[0])
     }
   }
 
   useEffect(() => {
-    refreshStreams();
+    // refreshStreams();
     getStreams();
-    const Interval = setInterval(() => {}, REFRESH_INTERVAL_MS);
-  }, []);
+    const Interval = setInterval(() => {
+      // refreshStreams()
+      getStreams()
+    }, REFRESH_INTERVAL_MS);
 
-  // useEffect(() => {}, [currentVideo]);
+    return () => clearInterval(Interval)
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,6 +138,9 @@ export default function StreamView({ userId }: StreamViewType) {
   };
 
   const playNext = () => {
+     axios.delete(`/api/streams/${currentVideo?.id}`,{
+      withCredentials:true,
+    })
     // if (queue.length > 0) {
     //   setCurrentVideo(queue[0]);
     //   setQueue(queue.slice(1));
@@ -179,29 +195,48 @@ export default function StreamView({ userId }: StreamViewType) {
           </Button>
         </form>
 
-        <div>
+        <div className="">
           {inputLink && inputLink.match(YT_REGEX) && (
-            <Card className="bg-gray-900 border-gray-800 h-full">
+            <Card className="bg-gray-900 border-gray-800 w-full h-[300px] md:h-[400px]">
               <CardContent className="p-4">
-                <LiteYoutubeEmbed title="" id={inputLink.split("?v=")[1]} />
+                <LiteYoutubeEmbed
+                  id={inputLink.split("?v=")[1]}
+                  title=""
+                  webp
+                  poster="maxresdefault" // use a sharper thumbnail
+                  noCookie
+                  aspectHeight={9}
+                  aspectWidth={16}
+                  wrapperClass="w-full h-full rounded-lg overflow-hidden"
+                />
               </CardContent>
             </Card>
           )}
         </div>
 
         {/* Now Playing */}
-        <Card className="bg-gray-900 border-0 h-[400px]">
+        <Card className="bg-gray-900 border-0 h-[450px]">
           <CardHeader className="font-semibold text-lg">Now Playing</CardHeader>
-          <CardContent className="flex flex-col items-center justify-center text-gray-400 h-full">
+          <CardContent className="flex flex-col items-center justify-center text-gray-400  h-[calc(100%-3rem)]">
             {currentVideo ? (
-              <>
-                <iframe
-                  src={embedurl}
-                  allow="autoplay"
+              <div className="flex-1 w-full ">
+                <Youtube
+                  key={currentVideo.id}
+                  videoId={currentVideo.extractedId}
+                  opts={{
+                    width: "100%",
+                    height: "100%",
+                    playerVars: {
+                      autoplay: 1,
+                      re: 0,
+                      modestbranding: 1,
+                    },
+                  }}
+                  onEnd={playNext}
                   className="w-full h-full"
                 />
                 <p>{currentVideo.title}</p>
-              </>
+              </div>
             ) : (
               <p className="text-center py-8 text-gray-400 ">
                 No video playing
@@ -254,9 +289,7 @@ export default function StreamView({ userId }: StreamViewType) {
             </Card>
           ))}
         </div>
-        
       </div>
-      
     </div>
   );
 }
