@@ -69,25 +69,12 @@ export default function StreamView({ userId }: StreamViewType) {
     }
 
     try {
-      // ✅ Send POST request with credentials
+      
       const res = await axios.post(
         `/api/streams`,
         { creatorId: userId, url: inputLink },
         { withCredentials: true } // Important: include session cookies
       );
-
-      // console.log("Response from backend", res.data);
-
-      // Update the queue locally
-      // const newVideo: Video = {
-      //   id: String(queue.length + 1),
-      //   title: res.data.title || `New Song ${queue.length + 1}`,
-      //   upvotes: 0,
-      //   downvotes: 0,
-      // };
-      // setQueue([...queue, newVideo]);
-
-      // setInputLink(""); // clear input
     } catch (err: any) {
       console.log(err);
       alert(err.response?.data?.message || "Error adding song to queue");
@@ -114,7 +101,7 @@ export default function StreamView({ userId }: StreamViewType) {
 
     try{
       const res = await axios.post(
-      `/api/streams/{${isUpvote ? "downvote" : "upvote"}}`,
+      `/api/streams/${isUpvote ? "downvote" : "upvote"}`,
       {
         userId:userId,
         streamId:id
@@ -138,6 +125,7 @@ export default function StreamView({ userId }: StreamViewType) {
       setQueue(queue.slice(1));
     }
   };
+  console.log("this is queue",queue)
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -167,13 +155,15 @@ export default function StreamView({ userId }: StreamViewType) {
           </Button>
         </form>
 
-        {inputLink && inputLink.match(YT_REGEX)&&(
-          <Card className="bg-gray-900 border-gray-800">
-            <CardContent className="p-4">
-              <LiteYoutubeEmbed title='' id={inputLink.split("?v=")[1]}/>
-            </CardContent>
-          </Card>
-        )}
+        <div>
+          {inputLink && inputLink.match(YT_REGEX) && (
+            <Card className="bg-gray-900 border-gray-800 h-full">
+              <CardContent className="p-4">
+                <LiteYoutubeEmbed title="" id={inputLink.split("?v=")[1]} />
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* Now Playing */}
         <Card className="bg-gray-900 border-0">
@@ -229,7 +219,7 @@ export default function StreamView({ userId }: StreamViewType) {
                       ) : (
                         <ChevronUp className="h-4 w-4" />
                       )}
-                      <span>{video.upvotes}</span>
+                      {/* <span>{video.upvotes}</span> */}
                     </Button>
                   </div>
                 </div>

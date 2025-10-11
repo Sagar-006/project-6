@@ -76,99 +76,11 @@ export async function POST(req: NextRequest) {
         message: "No Response from Youtube-Api!",
       });
     }
-
-    // Check if the user is not the creator
-    
-      // const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-      // const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-
-      // const userRecentStreams = await db.stream.count({
-      //   where: {
-      //     userId: data.creatorId,
-      //     // addedBy: user.id,
-      //     createAt: {
-      //       gte: tenMinutesAgo,
-      //     },
-      //   },
-      // });
-
-      // const duplicateSong = await db.stream.findFirst({
-      //   where: {
-      //     userId: data.creatorId,
-      //     extractedId: videoId,
-      //     createAt: {
-      //       gte: tenMinutesAgo,
-      //     },
-      //   },
-      // });
-      // console.log("Reached duplicateSong check");
-
-      // if (duplicateSong) {
-      //   return NextResponse.json(
-      //     {
-      //       message: "This song was already added in the last 10 minutes",
-      //     },
-      //     {
-      //       status: 429,
-      //     }
-      //   );
-      // }
-
-      // const streamsLastTwoMinutes = await db.stream.count({
-      //   where: {
-      //     userId: data.creatorId,
-      //     // addedBy: user.id,
-      //     createAt: {
-      //       gte: twoMinutesAgo,
-      //     },
-      //   },
-      // });
-
-      // if (streamsLastTwoMinutes >= 2) {
-      //   return NextResponse.json(
-      //     {
-      //       message:
-      //         "Rate limit exceeded:You can only add 2 songs per 2 minutes",
-      //     },
-      //     {
-      //       status: 429,
-      //     }
-      //   );
-      // }
-
-      // if (userRecentStreams >= 5) {
-      //   return NextResponse.json(
-      //     {
-      //       message:
-      //         "Rate limit exceeded:You can only add 5 songs per 10 minutes",
-      //     },
-      //     {
-      //       status: 429,
-      //     }
-      //   );
-      // }
       
       const thumbnails = ytRes.thumbnail.thumbnails;
       console.log(thumbnails);
       thumbnails.sort((a: { width: number }, b: { width: number }) => a.width < b.width ? -1 : 1);
-
-      // const existingActiveStreams = await db.stream.count({
-      //   where: {
-      //     // spaceId: data.spaceId,
-      //     played: false,
-      //   },
-      // });
-
-      // if (existingActiveStreams >= MAX_QUEUE_LEN) {
-      //   return NextResponse.json(
-      //     {
-      //       message: "Queue is full",
-      //     },
-      //     {
-      //       status: 429,
-      //     }
-      //   );
-      // }
+      
 
       console.log("Reached stream create");
       const stream = await db.stream.create({
