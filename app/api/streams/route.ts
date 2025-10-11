@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
     const videoId = data.url ? data.url.match(YT_REGEX)?.[1] : null;
     // console.log("this isYt and VideoId",isYt,videoId)
 
+    
+
     if (!isYt || !videoId) {
       return NextResponse.json(
         {
@@ -65,6 +67,17 @@ export async function POST(req: NextRequest) {
     }
     console.log("Video ID:", videoId);
 
+    const checkVideoIsAlreadyExist = await db.stream.findFirst({
+      where: {
+        extractedId: videoId ?? "",
+      },
+    });
+
+    if(checkVideoIsAlreadyExist){
+      return NextResponse.json({
+        message:"Video is Already In Stream!"
+      })
+    }
 
     
       const ytRes = await youtubesearchapi.GetVideoDetails(videoId);

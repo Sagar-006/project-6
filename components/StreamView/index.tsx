@@ -4,23 +4,28 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {ChevronDown,ChevronUp, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ThumbsUp,
+  ThumbsDown,
+  Share2,
+} from "lucide-react";
 import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
 
-
 interface Video {
   id: string;
-  type:string;
+  type: string;
   title: string;
-  url:string;
-  extractedId:string;
-  smallImg:string;
-  bigImg:string;
-  active:boolean;
+  url: string;
+  extractedId: string;
+  smallImg: string;
+  bigImg: string;
+  active: boolean;
   upvotes: number;
-  haveUpvoted:boolean;
+  haveUpvoted: boolean;
 }
 
 interface StreamViewType {
@@ -29,19 +34,15 @@ interface StreamViewType {
 
 const REFRESH_INTERVAL_MS = 10 * 1000;
 export default function StreamView({ userId }: StreamViewType) {
-  // console.log("this is userId", userId);
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-
 
   async function refreshStreams() {
     const res = await axios.get(`/api/streams/my`, {
       withCredentials: true,
     });
-    console.log("this is incide refreshStreams function",res);
-
-    
+    console.log("this is incide refreshStreams function", res);
   }
 
   async function getStreams() {
@@ -49,8 +50,13 @@ export default function StreamView({ userId }: StreamViewType) {
       withCredentials: true,
     });
     console.log("this is streams data", streams.data.streams);
+    const fetchedStreams = streams.data.streams;
 
-    setQueue(streams.data.streams);
+    setQueue(fetchedStreams);
+
+    if (fetchedStreams.length > 0) {
+      setCurrentVideo(fetchedStreams[0]);
+    }
   }
 
   useEffect(() => {
@@ -59,7 +65,8 @@ export default function StreamView({ userId }: StreamViewType) {
     const Interval = setInterval(() => {}, REFRESH_INTERVAL_MS);
   }, []);
 
-  
+  // useEffect(() => {}, [currentVideo]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -69,11 +76,10 @@ export default function StreamView({ userId }: StreamViewType) {
     }
 
     try {
-      
       const res = await axios.post(
         `/api/streams`,
         { creatorId: userId, url: inputLink },
-        { withCredentials: true } // Important: include session cookies
+        { withCredentials: true }
       );
     } catch (err: any) {
       console.log(err);
@@ -81,7 +87,7 @@ export default function StreamView({ userId }: StreamViewType) {
     }
   };
 
-  console.log("this is queue",queue)
+  console.log("this is queue", queue);
 
   const handleVote = async (id: string, isUpvote: boolean) => {
     setQueue(
@@ -91,41 +97,57 @@ export default function StreamView({ userId }: StreamViewType) {
             ? {
                 ...video,
                 upvotes: isUpvote ? video.upvotes + 1 : video.upvotes - 1,
-                haveUpvoted:!video.haveUpvoted
+                haveUpvoted: !video.haveUpvoted,
               }
             : video
         )
         .sort((a, b) => b.upvotes - a.upvotes)
-
     );
 
-    try{
+    try {
       const res = await axios.post(
-      `/api/streams/${isUpvote ? "downvote" : "upvote"}`,
-      {
-        userId:userId,
-        streamId:id
+        `/api/streams/${isUpvote ? "downvote" : "upvote"}`,
+        {
+          userId: userId,
+          streamId: id,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-      },
-      {
-        withCredentials:true,
-      }
-    );
-
-    console.log("this is upvote res",res.data)
-    }
-    catch(e){
-      console.log(e)
+      console.log("this is upvote res", res.data);
+    } catch (e) {
+      console.log(e);
     }
   };
 
   const playNext = () => {
-    if(queue.length > 0){
-      setCurrentVideo(queue[0]);
-      setQueue(queue.slice(1));
+    // if (queue.length > 0) {
+    //   setCurrentVideo(queue[0]);
+    //   setQueue(queue.slice(1));
+    // }
+    if (!currentVideo) {
+      if (queue.length > 0) setCurrentVideo(queue[0]);
+      return;
+    }
+
+    const currentIndex = queue.findIndex((v) => v.id === currentVideo.id);
+    console.log(currentIndex)
+
+    if (currentIndex >= 0 && currentIndex + 1 < queue.length) {
+      setCurrentVideo(queue[currentIndex + 1]);
+    } else {
+      console.log("End of queue");
+      setCurrentVideo(null);
     }
   };
-  console.log("this is queue",queue)
+  // console.log("this is queue",queue)
+  console.log("this is currentVideo", currentVideo);
+
+  // const currentVideoId = currentVideo?.id;
+
+  const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -166,15 +188,15 @@ export default function StreamView({ userId }: StreamViewType) {
         </div>
 
         {/* Now Playing */}
-        <Card className="bg-gray-900 border-0">
+        <Card className="bg-gray-900 border-0 h-[400px]">
           <CardHeader className="font-semibold text-lg">Now Playing</CardHeader>
-          <CardContent className="flex flex-col items-center justify-center text-gray-400 h-32">
+          <CardContent className="flex flex-col items-center justify-center text-gray-400 h-full">
             {currentVideo ? (
               <>
-                <img
-                  src="/placeholder.svg?height=360&width=640"
-                  alt="current video"
-                  className="w-full h-72 object-cover rounded"
+                <iframe
+                  src={embedurl}
+                  allow="autoplay"
+                  className="w-full h-full"
                 />
                 <p>{currentVideo.title}</p>
               </>
@@ -186,7 +208,10 @@ export default function StreamView({ userId }: StreamViewType) {
           </CardContent>
         </Card>
 
-        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+        <Button
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+          onClick={playNext}
+        >
           ▶ Play Next
         </Button>
 
