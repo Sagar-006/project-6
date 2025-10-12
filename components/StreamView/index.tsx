@@ -37,6 +37,8 @@ export default function StreamView({ userId }: StreamViewType) {
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
+  // console.log("this is queue", queue);
+
 
   const currentVideoRef = useRef<Video | null>(null);
   useEffect(() => {
@@ -47,14 +49,18 @@ export default function StreamView({ userId }: StreamViewType) {
     const res = await axios.get(`/api/streams/my`, {
       withCredentials: true,
     });
-    console.log("this is incide refreshStreams function", res);
+    // console.log("this is incide refreshStreams function", res);
+    const json = res.data.streams;
+    setQueue(json)
+    console.log("this is inside Refresh",queue)
+    // console.log("this is Json data from my endpoint",json)
   }
 
   async function getStreams() {
     const streams = await axios.get(`/api/streams/?creatorId=${userId}`, {
       withCredentials: true,
     });
-    console.log("this is streams data", streams.data.streams);
+    // console.log("this is streams data", streams.data.streams);
     const fetchedStreams = streams.data.streams;
 
     setQueue(fetchedStreams);
@@ -67,16 +73,16 @@ export default function StreamView({ userId }: StreamViewType) {
       !fetchedStreams.find((v:Video) => v.id === current.id)&&
       fetchedStreams.length > 0
     ){
-      setCurrentVideo(fetchedStreams[0])
+      setCurrentVideo(fetchedStreams[0]);
     }
   }
 
   useEffect(() => {
-    // refreshStreams();
-    getStreams();
+    refreshStreams();
+    // getStreams();
     const Interval = setInterval(() => {
-      // refreshStreams()
-      getStreams()
+      refreshStreams()
+      // getStreams()
     }, REFRESH_INTERVAL_MS);
 
     return () => clearInterval(Interval)
@@ -102,7 +108,6 @@ export default function StreamView({ userId }: StreamViewType) {
     }
   };
 
-  console.log("this is queue", queue);
 
   const handleVote = async (id: string, isUpvote: boolean) => {
     setQueue(
@@ -131,7 +136,7 @@ export default function StreamView({ userId }: StreamViewType) {
         }
       );
 
-      console.log("this is upvote res", res.data);
+      // console.log("this is upvote res", res.data);
     } catch (e) {
       console.log(e);
     }
@@ -160,10 +165,8 @@ export default function StreamView({ userId }: StreamViewType) {
       setCurrentVideo(null);
     }
   };
-  // console.log("this is queue",queue)
-  console.log("this is currentVideo", currentVideo);
 
-  // const currentVideoId = currentVideo?.id;
+  console.log(queue)
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
@@ -267,6 +270,8 @@ export default function StreamView({ userId }: StreamViewType) {
 
                 <div>
                   <h3 className="font-semibold text-white">{video.title}</h3>
+                  {/* <h1>{video.haveUpvoted}</h1> */}
+
                   <div className="flex items-center space-x-2 mt-2 ">
                     <Button
                       variant={"outline"}
@@ -281,7 +286,7 @@ export default function StreamView({ userId }: StreamViewType) {
                       ) : (
                         <ChevronUp className="h-4 w-4" />
                       )}
-                      {/* <span>{video.upvotes}</span> */}
+                      <span className="text-white">{video.upvotes}</span>
                     </Button>
                   </div>
                 </div>
