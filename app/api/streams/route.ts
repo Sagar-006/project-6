@@ -53,8 +53,6 @@ export async function POST(req: NextRequest) {
     const videoId = data.url ? data.url.match(YT_REGEX)?.[1] : null;
     // console.log("this isYt and VideoId",isYt,videoId)
 
-    
-
     if (!isYt || !videoId) {
       return NextResponse.json(
         {
@@ -223,10 +221,30 @@ export async function POST(req: NextRequest) {
 // }
 export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
+  const session = await getSession();
+  if(!session?.user.id){
+    return NextResponse.json({
+      message:"User Not loged In!"
+    },{
+      status:500
+    })
+  }
   const streams = await db.stream.findMany({
     where: {
-      userId: creatorId ?? "",
+      userId: creatorId ?? '',
     },
+    include:{
+      _count:{
+        select:{
+          upvotes:true
+        }
+      },
+      upvotes:{
+        where:{
+          userId:session.user.id,
+        }
+      }
+    }
   });
 
   return NextResponse.json({

@@ -40,10 +40,10 @@ export default function StreamView({ userId }: StreamViewType) {
   // console.log("this is queue", queue);
 
 
-  const currentVideoRef = useRef<Video | null>(null);
-  useEffect(() => {
-    currentVideoRef.current = currentVideo;
-  }, [currentVideo]);
+  // const currentVideoRef = useRef<Video | null>(null);
+  // useEffect(() => {
+  //   currentVideoRef.current = currentVideo;
+  // }, [currentVideo]);
 
   async function refreshStreams() {
     const res = await axios.get(`/api/streams/my`, {
@@ -56,32 +56,32 @@ export default function StreamView({ userId }: StreamViewType) {
     // console.log("this is Json data from my endpoint",json)
   }
 
-  async function getStreams() {
-    const streams = await axios.get(`/api/streams/?creatorId=${userId}`, {
-      withCredentials: true,
-    });
-    // console.log("this is streams data", streams.data.streams);
-    const fetchedStreams = streams.data.streams;
+  // async function getStreams() {
+  //   const streams = await axios.get(`/api/streams/?creatorId=${userId}`, {
+  //     withCredentials: true,
+  //   });
+  //   // console.log("this is streams data", streams.data.streams);
+  //   const fetchedStreams = streams.data.streams;
 
-    setQueue(fetchedStreams);
+  //   setQueue(fetchedStreams);
 
-    const current = currentVideoRef.current;
-    if (!current && fetchedStreams.length > 0) {
-      setCurrentVideo(fetchedStreams[0]);
-    }else if(
-      current && 
-      !fetchedStreams.find((v:Video) => v.id === current.id)&&
-      fetchedStreams.length > 0
-    ){
-      setCurrentVideo(fetchedStreams[0]);
-    }
-  }
+  //   const current = currentVideoRef.current;
+  //   if (!current && fetchedStreams.length > 0) {
+  //     setCurrentVideo(fetchedStreams[0]);
+  //   }else if(
+  //     current && 
+  //     !fetchedStreams.find((v:Video) => v.id === current.id)&&
+  //     fetchedStreams.length > 0
+  //   ){
+  //     setCurrentVideo(fetchedStreams[0]);
+  //   }
+  // }
 
   useEffect(() => {
     refreshStreams();
     // getStreams();
     const Interval = setInterval(() => {
-      refreshStreams()
+      // refreshStreams()
       // getStreams()
     }, REFRESH_INTERVAL_MS);
 
@@ -96,16 +96,14 @@ export default function StreamView({ userId }: StreamViewType) {
       return;
     }
 
-    try {
+    
       const res = await axios.post(
         `/api/streams`,
         { creatorId: userId, url: inputLink },
         { withCredentials: true }
       );
-    } catch (err: any) {
-      console.log(err);
-      alert(err.response?.data?.message || "Error adding song to queue");
-    }
+      setQueue([...queue, await res.data.stream])
+      setInputLink('')
   };
 
 
@@ -126,7 +124,7 @@ export default function StreamView({ userId }: StreamViewType) {
 
     try {
       const res = await axios.post(
-        `/api/streams/${isUpvote ? "downvote" : "upvote"}`,
+        `/api/streams/${isUpvote ? "upvote" : "downvote"}`,
         {
           userId: userId,
           streamId: id,
@@ -146,32 +144,33 @@ export default function StreamView({ userId }: StreamViewType) {
      axios.delete(`/api/streams/${currentVideo?.id}`,{
       withCredentials:true,
     })
-    // if (queue.length > 0) {
-    //   setCurrentVideo(queue[0]);
-    //   setQueue(queue.slice(1));
-    // }
-    if (!currentVideo) {
-      if (queue.length > 0) setCurrentVideo(queue[0]);
-      return;
+    if (queue.length > 0) {
+      setCurrentVideo(queue[0]);
+      setQueue(queue.slice(1));
     }
+  //   if (!currentVideo) {
+  //     if (queue.length > 0) setCurrentVideo(queue[0]);
+  //     return;
+  //   }
 
-    const currentIndex = queue.findIndex((v) => v.id === currentVideo.id);
-    console.log(currentIndex)
+  //   const currentIndex = queue.findIndex((v) => v.id === currentVideo.id);
+  //   console.log(currentIndex)
 
-    if (currentIndex >= 0 && currentIndex + 1 < queue.length) {
-      setCurrentVideo(queue[currentIndex + 1]);
-    } else {
-      console.log("End of queue");
-      setCurrentVideo(null);
-    }
-  };
+  //   if (currentIndex >= 0 && currentIndex + 1 < queue.length) {
+  //     setCurrentVideo(queue[currentIndex + 1]);
+  //   } else {
+  //     console.log("End of queue");
+  //     setCurrentVideo(null);
+  //   }
+  // };
+}
 
   console.log(queue)
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen flex flex-col bg-black text-white p-6">
+      <div className="max-w-4xl mx-auto space-y-6 p-4 w-full ">
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Song Voting Queue</h1>
@@ -200,18 +199,9 @@ export default function StreamView({ userId }: StreamViewType) {
 
         <div className="">
           {inputLink && inputLink.match(YT_REGEX) && (
-            <Card className="bg-gray-900 border-gray-800 w-full h-[300px] md:h-[400px]">
+            <Card className="bg-gray-900 border-gray-800 ">
               <CardContent className="p-4">
-                <LiteYoutubeEmbed
-                  id={inputLink.split("?v=")[1]}
-                  title=""
-                  webp
-                  poster="maxresdefault" // use a sharper thumbnail
-                  noCookie
-                  aspectHeight={9}
-                  aspectWidth={16}
-                  wrapperClass="w-full h-full rounded-lg overflow-hidden"
-                />
+                <LiteYoutubeEmbed title="" id={inputLink.split("?v=")[1]}/>
               </CardContent>
             </Card>
           )}
