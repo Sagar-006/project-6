@@ -4,16 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import Youtube,{YouTubeProps} from 'react-youtube'
-import {
-  
-  ChevronDown,
-  ChevronUp,
-  Share2,
-} from "lucide-react";
+import Youtube, { YouTubeProps } from "react-youtube";
+import { ChevronDown, ChevronUp, Share2 } from "lucide-react";
 import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
+import { toast, ToastContainer } from 'react-toastify';
 
 interface Video {
   id: string;
@@ -37,6 +33,7 @@ export default function StreamView({ userId }: StreamViewType) {
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
+  const [loading,setLoading] = useState<boolean>(false);
 
   async function refreshStreams() {
     const res = await axios.get(`/api/streams/?creatorId=${userId}`, {
@@ -44,39 +41,46 @@ export default function StreamView({ userId }: StreamViewType) {
     });
     console.log("this is incide refreshStreams function", res.data);
     const json = res.data.streams;
-    setQueue(json)
-    // console.log("this is inside Refresh",queue)
-    // console.log("this is Json data from my endpoint",json)
+    setQueue(json);
   }
-
 
   useEffect(() => {
     refreshStreams();
     // getStreams();
     const Interval = setInterval(() => {
-      // refreshStreams()
+      refreshStreams()
       // getStreams()
     }, REFRESH_INTERVAL_MS);
 
-    return () => clearInterval(Interval)
+    return () => clearInterval(Interval);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true)
     if (!inputLink.trim()) {
-      alert("Please enter a YouTube link");
+      toast.error("Please enter a YouTube link");
       return;
-    }    
+    }
+    try{
       const res = await axios.post(
         `/api/streams`,
         { creatorId: userId, url: inputLink },
         { withCredentials: true }
       );
-      setQueue([...queue, await res.data.stream])
-      setInputLink('')
-  };
+      console.log("this is inside Post streams method", res);
+      // toast.error(res)
 
+      setQueue([...queue, await res.data.stream]);
+      setLoading(false);
+      setInputLink("");
+
+      toast.success('Video added to queue');
+    }catch(error){
+      console.error('API error')
+      // toast.error(error.response?.data.message || 'something went wrong')
+    }
+  };
 
   const handleVote = async (id: string, isUpvote: boolean) => {
     setQueue(
@@ -112,31 +116,27 @@ export default function StreamView({ userId }: StreamViewType) {
   };
 
   const playNext = () => {
-     axios.delete(`/api/streams/${currentVideo?.id}`,{
-      withCredentials:true,
-    })
+    axios.delete(`/api/streams/${currentVideo?.id}`, {
+      withCredentials: true,
+    });
     if (queue.length > 0) {
       setCurrentVideo(queue[0]);
       setQueue(queue.slice(1));
     }
-  //   if (!currentVideo) {
-  //     if (queue.length > 0) setCurrentVideo(queue[0]);
-  //     return;
-  //   }
 
-  //   const currentIndex = queue.findIndex((v) => v.id === currentVideo.id);
-  //   console.log(currentIndex)
+  };
 
-  //   if (currentIndex >= 0 && currentIndex + 1 < queue.length) {
-  //     setCurrentVideo(queue[currentIndex + 1]);
-  //   } else {
-  //     console.log("End of queue");
-  //     setCurrentVideo(null);
-  //   }
-  // };
-}
+  const handleShare = () => {
+    const shareableLink = `${window.location.hostname}/creator/${userId}`;
+    navigator.clipboard.writeText(shareableLink).then(() => {
+      toast.success('Link copied to clipboard!')
+    },(err) => {
+      console.log(err);
+      toast.error('Failed to copy link,please try again')
+    })
+  }
 
-  console.log(queue)
+  console.log(queue);
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
@@ -146,6 +146,7 @@ export default function StreamView({ userId }: StreamViewType) {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Song Voting Queue</h1>
           <Button
+            onClick={handleShare}
             variant="outline"
             className="bg-purple-600 hover:bg-purple-700 text-white border-0"
           >
@@ -161,18 +162,19 @@ export default function StreamView({ userId }: StreamViewType) {
             onChange={(e) => setInputLink(e.target.value)}
           />
           <Button
+            disabled={loading}
             type="submit"
             className="bg-purple-600 hover:bg-purple-700 text-white"
           >
-            Add to Queue
+            {loading ? "Loading..." : "Add to Queue"}
           </Button>
         </form>
 
         <div className="">
-          {inputLink && inputLink.match(YT_REGEX) && (
+          {inputLink && inputLink.match(YT_REGEX) && !loading && (
             <Card className="bg-gray-900 border-gray-800 ">
               <CardContent className="p-4">
-                <LiteYoutubeEmbed title="" id={inputLink.split("?v=")[1]}/>
+                <LiteYoutubeEmbed title="" id={inputLink.split("?v=")[1]} />
               </CardContent>
             </Card>
           )}
@@ -224,7 +226,10 @@ export default function StreamView({ userId }: StreamViewType) {
             <Card key={video.id} className="bg-gray-900 border-gray-800">
               <CardContent className="p-4 flex items-center space-x-4">
                 <img
-                  src={video.smallImg}
+                  src={
+                    video.smallImg ||
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3GPtE-cUcwF8cEk5pohVVMrjl86d04BoEg&s"
+                  }
                   alt="LoadingImg..."
                   className="w-30 h-20 object-cover rounded"
                 />
@@ -256,6 +261,7 @@ export default function StreamView({ userId }: StreamViewType) {
           ))}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

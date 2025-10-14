@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     if (!isYt || !videoId) {
       return NextResponse.json(
         {
-          message: "Inavalid youtube URL format",
+          message: "Invalid youtube URL format",
         },
         {
           status: 400,
