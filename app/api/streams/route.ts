@@ -229,25 +229,34 @@ export async function GET(req: NextRequest) {
       status:500
     })
   }
+  if(!creatorId){
+    return NextResponse.json({
+      message:"Need creatorId!"
+    })
+  }
   const streams = await db.stream.findMany({
     where: {
-      userId: creatorId ?? '',
+      userId: creatorId,
     },
-    include:{
-      _count:{
-        select:{
-          upvotes:true
-        }
+    include: {
+      _count: {
+        select: {
+          upvotes: true,
+        },
       },
-      upvotes:{
-        where:{
-          userId:session.user.id,
-        }
-      }
-    }
+      upvotes: {
+        where: {
+          userId: creatorId,
+        },
+      },
+    },
   });
 
   return NextResponse.json({
-    streams,
-  },{status:200});
+    streams: streams.map(({ _count, ...rest }) => ({
+      ...rest,
+      upvotes: _count.upvotes,
+      haveUpvoted: rest.upvotes.length ? true : false,
+    })),
+  });
 }

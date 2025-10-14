@@ -37,45 +37,18 @@ export default function StreamView({ userId }: StreamViewType) {
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  // console.log("this is queue", queue);
-
-
-  // const currentVideoRef = useRef<Video | null>(null);
-  // useEffect(() => {
-  //   currentVideoRef.current = currentVideo;
-  // }, [currentVideo]);
 
   async function refreshStreams() {
-    const res = await axios.get(`/api/streams/my`, {
+    const res = await axios.get(`/api/streams/?creatorId=${userId}`, {
       withCredentials: true,
     });
-    // console.log("this is incide refreshStreams function", res);
+    console.log("this is incide refreshStreams function", res.data);
     const json = res.data.streams;
     setQueue(json)
-    console.log("this is inside Refresh",queue)
+    // console.log("this is inside Refresh",queue)
     // console.log("this is Json data from my endpoint",json)
   }
 
-  // async function getStreams() {
-  //   const streams = await axios.get(`/api/streams/?creatorId=${userId}`, {
-  //     withCredentials: true,
-  //   });
-  //   // console.log("this is streams data", streams.data.streams);
-  //   const fetchedStreams = streams.data.streams;
-
-  //   setQueue(fetchedStreams);
-
-  //   const current = currentVideoRef.current;
-  //   if (!current && fetchedStreams.length > 0) {
-  //     setCurrentVideo(fetchedStreams[0]);
-  //   }else if(
-  //     current && 
-  //     !fetchedStreams.find((v:Video) => v.id === current.id)&&
-  //     fetchedStreams.length > 0
-  //   ){
-  //     setCurrentVideo(fetchedStreams[0]);
-  //   }
-  // }
 
   useEffect(() => {
     refreshStreams();
@@ -94,9 +67,7 @@ export default function StreamView({ userId }: StreamViewType) {
     if (!inputLink.trim()) {
       alert("Please enter a YouTube link");
       return;
-    }
-
-    
+    }    
       const res = await axios.post(
         `/api/streams`,
         { creatorId: userId, url: inputLink },
