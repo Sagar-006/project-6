@@ -25,23 +25,23 @@ interface Video {
 }
 
 interface StreamViewType {
-  userId: any;
+  creatorId: string;
 }
 
 const REFRESH_INTERVAL_MS = 10 * 1000;
-export default function StreamView({ userId }: StreamViewType) {
+export default function StreamView({ creatorId }: StreamViewType) {
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
   const [loading,setLoading] = useState<boolean>(false);
 
   async function refreshStreams() {
-    const res = await axios.get(`/api/streams/?creatorId=${userId}`, {
+    const res = await axios.get(`/api/streams/?creatorId=${creatorId}`, {
       withCredentials: true,
     });
     console.log("this is incide refreshStreams function", res.data);
     const json = res.data.streams;
-    setQueue(json);
+    setQueue(json.sort((a:any,b:any) => a.upvotes < b.upvotes ? 1 : -1));
   }
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function StreamView({ userId }: StreamViewType) {
     try{
       const res = await axios.post(
         `/api/streams`,
-        { creatorId: userId, url: inputLink },
+        { creatorId: creatorId, url: inputLink },
         { withCredentials: true }
       );
       console.log("this is inside Post streams method", res);
@@ -101,7 +101,7 @@ export default function StreamView({ userId }: StreamViewType) {
       const res = await axios.post(
         `/api/streams/${isUpvote ? "upvote" : "downvote"}`,
         {
-          userId: userId,
+          userId: creatorId,
           streamId: id,
         },
         {
@@ -127,7 +127,7 @@ export default function StreamView({ userId }: StreamViewType) {
   };
 
   const handleShare = () => {
-    const shareableLink = `${window.location.hostname}/creator/${userId}`;
+    const shareableLink = `${window.location.origin}/creator/${creatorId}`;
     navigator.clipboard.writeText(shareableLink).then(() => {
       toast.success('Link copied to clipboard!')
     },(err) => {

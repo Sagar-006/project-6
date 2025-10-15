@@ -11,20 +11,20 @@ export default async function Dashboard(){
     redirect("/auth/signup")
   }
 
-  const userId =  session.user.id;
-  console.log(userId)
+  const creatorId =  session.user.id;
+  // console.log(userId)
 
   return (
     <div className="bg-black h-full w-full ">
       <div className="flex justify-end mx-32 pt-4">
         {/* <h1>Welcome {session?.user.name} </h1> */}
-        {userId && (
+        {creatorId && (
           <Logout>
             <LogOut className="text-white cursor-pointer"/>
           </Logout>
         )}
       </div>
-      <StreamView userId={userId} />
+      <StreamView creatorId={creatorId} />
     </div>
   );
 } 
