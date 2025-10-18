@@ -236,7 +236,7 @@ export async function GET(req: NextRequest) {
   }
   const streams = await db.stream.findMany({
     where: {
-      userId: creatorId,
+      userId: session.user.id,
     },
     include: {
       _count: {

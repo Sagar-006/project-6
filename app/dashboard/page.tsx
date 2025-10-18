@@ -12,7 +12,7 @@ export default async function Dashboard(){
   }
 
   const creatorId =  session.user.id;
-  // console.log(userId)
+  console.log('this is Creator Id',creatorId)
 
   return (
     <div className="bg-black h-full w-full ">
