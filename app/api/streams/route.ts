@@ -221,14 +221,14 @@ export async function POST(req: NextRequest) {
 // }
 export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
-  const session = await getSession();
-  if(!session?.user.id){
-    return NextResponse.json({
-      message:"User Not loged In!"
-    },{
-      status:500
-    })
-  }
+  // const session = await getSession();
+  // if(!session?.user.id){
+  //   return NextResponse.json({
+  //     message:"User Not loged In!"
+  //   },{
+  //     status:500
+  //   })
+  // }
   if(!creatorId){
     return NextResponse.json({
       message:"Need creatorId!"
@@ -236,7 +236,7 @@ export async function GET(req: NextRequest) {
   }
   const streams = await db.stream.findMany({
     where: {
-      userId: session.user.id,
+      userId: creatorId,
     },
     include: {
       _count: {

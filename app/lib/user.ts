@@ -10,6 +10,6 @@ export function User(){
     } = authClient.useSession() 
 
     return (
-        
+        null
     )
 }

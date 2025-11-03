@@ -18,11 +18,11 @@ export default async function Dashboard(){
     <div className="bg-black h-full w-full ">
       <div className="flex justify-end mx-32 pt-4">
         {/* <h1>Welcome {session?.user.name} </h1> */}
-        {creatorId && (
+        {/* {creatorId && (
           <Logout>
             <LogOut className="text-white cursor-pointer"/>
           </Logout>
-        )}
+        )} */}
       </div>
       <StreamView creatorId={creatorId} />
     </div>

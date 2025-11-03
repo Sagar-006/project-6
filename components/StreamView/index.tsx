@@ -41,7 +41,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
     });
     console.log("this is incide refreshStreams function", res.data);
     const json = res.data.streams;
-    setQueue(json.sort((a:any,b:any) => a.upvotes < b.upvotes ? 1 : -1));
+    setQueue(json?.sort((a:any,b:any) => a.upvotes < b.upvotes ? 1 : -1));
   }
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
     })
   }
 
-  console.log(queue);
+  // console.log(queue);
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
@@ -222,12 +222,12 @@ export default function StreamView({ creatorId }: StreamViewType) {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold mb-3">Upcoming Songs</h2>
 
-          {queue.map((video) => (
-            <Card key={video.id} className="bg-gray-900 border-gray-800">
+          {queue?.map((video,index) => (
+            <Card key={index} className="bg-gray-900 border-gray-800">
               <CardContent className="p-4 flex items-center space-x-4">
                 <img
                   src={
-                    video.smallImg ||
+                    video?.smallImg ||
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3GPtE-cUcwF8cEk5pohVVMrjl86d04BoEg&s"
                   }
                   alt="LoadingImg..."
@@ -235,7 +235,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
                 />
 
                 <div>
-                  <h3 className="font-semibold text-white">{video.title}</h3>
+                  <h3 className="font-semibold text-white">{video?.title}</h3>
                   {/* <h1>{video.haveUpvoted}</h1> */}
 
                   <div className="flex items-center space-x-2 mt-2 ">
@@ -243,16 +243,16 @@ export default function StreamView({ creatorId }: StreamViewType) {
                       variant={"outline"}
                       size={"sm"}
                       onClick={() =>
-                        handleVote(video.id, video.haveUpvoted ? false : true)
+                        handleVote(video?.id, video?.haveUpvoted ? false : true)
                       }
                       className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
                     >
-                      {video.haveUpvoted ? (
+                      {video?.haveUpvoted ? (
                         <ChevronDown className="h-4 w-4" />
                       ) : (
                         <ChevronUp className="h-4 w-4" />
                       )}
-                      <span className="text-white">{video.upvotes}</span>
+                      <span className="text-white">{video?.upvotes}</span>
                     </Button>
                   </div>
                 </div>
