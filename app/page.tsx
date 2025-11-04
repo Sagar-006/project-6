@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "./lib/session";
 import Navbar from "@/components/Navbar";
 import { AuthCheck } from "./lib/AuthCheck";
+import NavbarServer from "@/components/NavbarServer";
 
 export default async function LandingPage() {
   const session = await getSession();
@@ -18,7 +19,7 @@ export default async function LandingPage() {
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* <Appbar showThemeSwitch={false} /> */}
       <AuthCheck/>
-      <div className="w-full"><Navbar/></div>
+      {/* <div className="w-full"><NavbarServer/></div> */}
       <main className="flex-1 py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
@@ -34,7 +35,7 @@ export default async function LandingPage() {
             <div className="space-x-4">
               <Button className="bg-purple-600 text-white hover:bg-purple-700">
                 <Link
-                  href={'/auth/signup'}
+                  href={'/auth/signin'}
                 >
                   Get Started
                 </Link>
@@ -96,7 +97,7 @@ export default async function LandingPage() {
                 href={{
                   pathname: "/auth",
                   query: {
-                    authType: "signUp",
+                    authType: "signin",
                   },
                 }}
               >

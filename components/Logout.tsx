@@ -2,6 +2,7 @@
 import { auth } from "@/app/lib/auth"
 import { authClient } from "@/app/lib/auth-client"
 import { redirect } from "next/navigation"
+import { Button } from "./ui/button"
 
 export function Logout ({children}:{children:React.ReactNode}) {
     const LogOutUser  = async () => {
@@ -14,5 +15,5 @@ export function Logout ({children}:{children:React.ReactNode}) {
         })
     }
 
-    return <button onClick={LogOutUser}>{children}</button>
+    return <Button variant={'secondary'} onClick={LogOutUser}>{children}</Button>
 }

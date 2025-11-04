@@ -221,14 +221,12 @@ export async function POST(req: NextRequest) {
 // }
 export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
-  // const session = await getSession();
-  // if(!session?.user.id){
-  //   return NextResponse.json({
-  //     message:"User Not loged In!"
-  //   },{
-  //     status:500
-  //   })
-  // }
+  const session = await getSession();
+  const user = await db.user.findFirst({
+    where:{
+      email:session?.user.email ?? ""
+    }
+  })
   if(!creatorId){
     return NextResponse.json({
       message:"Need creatorId!"
@@ -246,7 +244,7 @@ export async function GET(req: NextRequest) {
       },
       upvotes: {
         where: {
-          userId: creatorId,
+          userId: user?.id,
         },
       },
     },
