@@ -155,7 +155,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white p-6">
       {/* <Navbarclient session={creatorId}/> */}
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-18">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-32 border-2">
         <div>
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold">Song Voting Queue</h1>
@@ -169,7 +169,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
           </div>
 
           {/* Add to Queue */}
-          <form className="flex gap-2" onSubmit={handleSubmit}>
+          <form className="flex gap-2 mb-2" onSubmit={handleSubmit}>
             <Input
               placeholder="Paste YouTube link here"
               className="bg-gray-900 border-gray-700"
@@ -195,7 +195,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
 
             {/* Now Playing */}
             <Card className="bg-gray-900 border-0 h-[450px]">
-              <CardHeader className="font-semibold text-lg">
+              <CardHeader className="font-semibold text-lg text-white">
                 Now Playing
               </CardHeader>
               <CardContent className="flex flex-col items-center justify-center text-gray-400  h-[calc(100%-3rem)]">
@@ -239,7 +239,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
             <h2 className="text-lg font-semibold mb-3">Upcoming Songs</h2>
 
             {queue?.map((video, index) => (
-              <Card key={index} className="bg-gray-900 border-gray-800">
+              <Card key={index} className="bg-gray-900 border-gray-800 mt-2">
                 <CardContent className="p-4 flex items-center space-x-4 h-20">
                   <img
                     src={
