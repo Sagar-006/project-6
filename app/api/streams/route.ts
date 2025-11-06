@@ -236,6 +236,7 @@ export async function GET(req: NextRequest) {
   const [streams,activeStream] = await Promise.all([await db.stream.findMany({
     where: {
       userId: creatorId,
+      played:false
     },
     include: {
       _count: {

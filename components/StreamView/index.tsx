@@ -70,7 +70,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       
     }, REFRESH_INTERVAL_MS);
 
-    // return () => clearInterval(Interval);
+    return () => clearInterval(Interval);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
