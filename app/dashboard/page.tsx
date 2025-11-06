@@ -20,7 +20,7 @@ export default async function Dashboard(){
       <div className="flex justify-end mx-32 pt-4">
        
       </div>
-      <StreamView creatorId={creatorId} />
+      <StreamView creatorId={creatorId} playVideo={true}/>
     </div>
   );
 } 

@@ -1,6 +1,6 @@
 import prisma from "@/app/lib/db";
 import { getSession } from "@/app/lib/session";
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 
 export async function GET(){
     const session = await getSession();
@@ -20,7 +20,8 @@ export async function GET(){
 
     const mostUpvotedStream = await prisma.stream.findFirst({
         where:{
-            userId:user.id
+            userId:user.id,
+            played:false,
         },
         orderBy:{
             upvotes:{
@@ -34,15 +35,21 @@ export async function GET(){
             userId:user.id
         },
         update:{
-            streamId:mostUpvotedStream?.id
+            userId:user.id,
+            streamId:mostUpvotedStream?.id,
+
         },
         create:{
             userId:user.id,
             streamId:mostUpvotedStream?.id
         }
-    }),prisma.stream.delete({
+    }),prisma.stream.update({
         where:{
             id:mostUpvotedStream?.id ?? ''
+        },
+        data:{
+            played:true,
+            playedTs:new Date()
         }
     })
 

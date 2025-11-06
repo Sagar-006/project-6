@@ -9,6 +9,7 @@ import yts from "yt-search";
 import { authClient } from "@/app/lib/auth-client";
 import db from "@/app/lib/db";
 import { traceGlobals } from "next/dist/trace/shared";
+import prisma from "@/app/lib/db";
 
 const CreateStreamSchema = z.object({
   creatorId: z.string(),
@@ -193,7 +194,7 @@ export async function POST(req: NextRequest) {
 //         },
 //       },
 //     }),
-//     db.currentStream.findFirst({
+//     db..findFirst({
 //       where: {
 //         spaceId: spaceId,
 //       },
@@ -232,7 +233,7 @@ export async function GET(req: NextRequest) {
       message:"Need creatorId!"
     })
   }
-  const streams = await db.stream.findMany({
+  const [streams,activeStream] = await Promise.all([await db.stream.findMany({
     where: {
       userId: creatorId,
     },
@@ -248,7 +249,13 @@ export async function GET(req: NextRequest) {
         },
       },
     },
-  });
+  }), prisma.currentStream.findFirst({
+    where:{
+      userId:creatorId
+    },include:{
+      stream:true
+    }
+  })])
 
   return NextResponse.json({
     streams: streams.map(({ _count, ...rest }) => ({
@@ -256,5 +263,6 @@ export async function GET(req: NextRequest) {
       upvotes: _count.upvotes,
       haveUpvoted: rest.upvotes.length ? true : false,
     })),
+    activeStream
   });
 }

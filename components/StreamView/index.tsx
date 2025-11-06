@@ -28,29 +28,34 @@ interface Video {
 
 interface StreamViewType {
   creatorId: string;
+  playVideo:boolean;
 }
 
 const REFRESH_INTERVAL_MS = 10 * 1000;
-export default function StreamView({ creatorId }: StreamViewType) {
+export default function StreamView({ creatorId,playVideo }: StreamViewType) {
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
   const [loading,setLoading] = useState<boolean>(false);
+  const [playNextLoader,setPlayNextLoader] = useState<boolean>(false);
 
   async function refreshStreams() {
     try{
       const res = await axios.get(`/api/streams/?creatorId=${creatorId}`, {
         withCredentials: true,
       });
-      console.log("this is incide refreshStreams function", res.data);
-      const json = res.data.streams;
+      // console.log("this is incide refreshStreams function", res.data);
+      const json = res.data;
       setQueue(
-        json?.sort((a: any, b: any) => (a.upvotes < b.upvotes ? 1 : -1))
+        json.streams.sort((a: any, b: any) => (a.upvotes < b.upvotes ? 1 : -1))
       );
-
-      // setCurrentVideo((video) => {
-      //   if(video?.id === json.)
-      // });
+      // setCurrentVideo(json.activeStream.stream)
+      setCurrentVideo(video => {
+        if(video?.id === json.activeStream?.stream?.id){
+          return video
+        }
+        return json.activeStream.stream
+      })
     }
     catch(e){
       return e
@@ -90,7 +95,7 @@ export default function StreamView({ creatorId }: StreamViewType) {
 
       toast.success('Video added to queue');
     }catch(error){
-      console.error('API error')
+      // console.error('API error')
       // toast.error(error.response?.data.message || 'something went wrong')
     }
   };
@@ -128,14 +133,22 @@ export default function StreamView({ creatorId }: StreamViewType) {
     }
   };
 
-  const playNext = () => {
-    axios.delete(`/api/streams/${currentVideo?.id}`, {
-      withCredentials: true,
-    });
-    // if (queue.length > 0) {
-    //   setCurrentVideo(queue[0]);
-    //   setQueue(queue.slice(1));
-    // }
+  const playNext = async () => {
+   
+    if (queue.length > 0) {
+      try{
+        const data = await fetch(`/api/streams/next`, {
+          method: "GET",
+        });
+        const json = await data.json();
+        setCurrentVideo(json.stream);
+        setQueue(q => q.filter(x => x.id !== json.stream?.id))
+      }catch(e){
+        console.log(e)
+      }
+      setPlayNextLoader(false);
+      
+    }
 
   };
 
@@ -148,8 +161,6 @@ export default function StreamView({ creatorId }: StreamViewType) {
       toast.error('Failed to copy link,please try again')
     })
   }
-
-  // console.log(queue);
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
@@ -198,25 +209,21 @@ export default function StreamView({ creatorId }: StreamViewType) {
               <CardHeader className="font-semibold text-lg text-white">
                 Now Playing
               </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center text-gray-400  h-[calc(100%-3rem)]">
+              <CardContent className="flex flex-col items-center justify-center text-gray-400 border-1   h-[calc(100%-3rem)]">
                 {currentVideo ? (
-                  <div className="flex-1 w-full ">
-                    <Youtube
-                      key={currentVideo.id}
-                      videoId={currentVideo.extractedId}
-                      opts={{
-                        width: "100%",
-                        height: "100%",
-                        playerVars: {
-                          autoplay: 1,
-                          re: 0,
-                          modestbranding: 1,
-                        },
-                      }}
-                      onEnd={playNext}
-                      className="w-full h-full"
+                  <div className="w-[100%] h-[100vh]">
+                    {playVideo ? <>
+                    <div className="flex-1 w-full border-2">
+                      <iframe className="w-full" src={`https://www.youtube.com/embed/${currentVideo.extractedId}?autoplay=1`} allow="autoplay"></iframe>
+                    {/* <p>{currentVideo.title}</p> */}
+                  </div>
+                    </>:<>
+                    <img
+                    src={currentVideo.bigImg}
+                    className="w-full h-72 object-cover rounded "
                     />
-                    <p>{currentVideo.title}</p>
+                    <p className="mt-2 text-center font-semibold text-white">{currentVideo.title}</p>
+                    </>}
                   </div>
                 ) : (
                   <p className="text-center py-8 text-gray-400 ">
@@ -226,17 +233,21 @@ export default function StreamView({ creatorId }: StreamViewType) {
               </CardContent>
             </Card>
 
-            <Button
+            {playVideo && <Button disabled={playNextLoader}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white"
               onClick={playNext}
             >
-              ▶ Play Next
-            </Button>
+              {
+                playNextLoader ? 'Loading...' : 'Play Next'
+              }
+            </Button>}
           </div>
         </div>
         <div>
           <div className="space-y-4 pt-4 ">
             <h2 className="text-lg font-semibold mb-3">Upcoming Songs</h2>
+                {/* <CardContent className="p-4 flex items-center space-x-4 h-20"> */}
+            {/* {queue.length === 0 &&   <Card className="bg-gray-900 border-0 h-[450px]"><p className="text-center py-8 text-gray-400 ">No videos in queue</p></Card>} */}
 
             {queue?.map((video, index) => (
               <Card key={index} className="bg-gray-900 border-gray-800 mt-2">
