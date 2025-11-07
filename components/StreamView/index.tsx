@@ -94,9 +94,12 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       setInputLink("");
 
       toast.success('Video added to queue');
-    }catch(error){
+    }catch(error:any){
       // console.error('API error')
-      // toast.error(error.response?.data.message || 'something went wrong')
+      toast.error(error.response?.data.message || 'something went wrong')
+    }finally{
+      setLoading(false);
+      setInputLink('')
     }
   };
 
@@ -166,7 +169,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white p-6">
       {/* <Navbarclient session={creatorId}/> */}
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-32 border-2">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-32 mt-4 ">
         <div>
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold">Song Voting Queue</h1>
@@ -205,25 +208,48 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
             )}
 
             {/* Now Playing */}
-            <Card className="bg-gray-900 border-0 h-[450px]">
-              <CardHeader className="font-semibold text-lg text-white">
+            <Card className="bg-gray-900 border-0 h-[450px] ">
+              <CardHeader className="font-semibold text-lg text-white ">
                 Now Playing
               </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center text-gray-400 border-1   h-[calc(100%-3rem)]">
+              <CardContent className="flex flex-col items-center justify-center text-gray-400 h-[calc(100%-3rem)]">
                 {currentVideo ? (
-                  <div className="w-[100%] h-[100vh]">
-                    {playVideo ? <>
-                    <div className="flex-1 w-full border-2">
-                      <iframe className="w-full" src={`https://www.youtube.com/embed/${currentVideo.extractedId}?autoplay=1`} allow="autoplay"></iframe>
-                    {/* <p>{currentVideo.title}</p> */}
-                  </div>
-                    </>:<>
-                    <img
-                    src={currentVideo.bigImg}
-                    className="w-full h-72 object-cover rounded "
-                    />
-                    <p className="mt-2 text-center font-semibold text-white">{currentVideo.title}</p>
-                    </>}
+                  <div className="w-full h-full">
+                    {playVideo ? (
+                      <>
+                        <div className="flex-1 w-full h-full ">
+                          {/* <iframe
+                            className="w-full h-full object-cover"
+                            src={`https://www.youtube.com/embed/${currentVideo.extractedId}?autoplay=1`}
+                            allow="autoplay"
+                          ></iframe> */}
+                          <Youtube 
+                          videoId={currentVideo.extractedId}
+                          onEnd={playNext}
+                          opts={{
+                            width:'100%',
+                            height:'100%',
+                            playerVars:{
+                              autoplay:1,
+                              controls:1
+                            }
+                          }}
+                          className="w-full h-full object-cover"
+                          />
+                          {/* <p>{currentVideo.title}</p> */}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <img
+                          src={currentVideo.bigImg}
+                          className="w-full h-72 object-cover rounded "
+                        />
+                        <p className="mt-2 text-center font-semibold text-white">
+                          {currentVideo.title}
+                        </p>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <p className="text-center py-8 text-gray-400 ">
@@ -233,28 +259,36 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
               </CardContent>
             </Card>
 
-            {playVideo && <Button disabled={playNextLoader}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-              onClick={playNext}
-            >
-              {
-                playNextLoader ? 'Loading...' : 'Play Next'
-              }
-            </Button>}
+            {queue.length > 0 && playVideo && (
+              <Button
+                disabled={playNextLoader}
+                className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={playNext}
+              >
+                {playNextLoader ? "Loading..." : "Play Next"}
+              </Button>
+            )}
           </div>
         </div>
         <div>
           <div className="space-y-4 pt-4 ">
-            <h2 className="text-lg font-semibold mb-3">Upcoming Songs</h2>
-                {/* <CardContent className="p-4 flex items-center space-x-4 h-20"> */}
-            {/* {queue.length === 0 &&   <Card className="bg-gray-900 border-0 h-[450px]"><p className="text-center py-8 text-gray-400 ">No videos in queue</p></Card>} */}
+            <h2 className="text-lg font-semibold mb-3 ml-6 ">Upcoming Songs</h2>
+            {queue.length === 0 && (
+              <CardContent >
+                <Card className="bg-gray-900 border-0 h-[150px] ">
+                  <p className="text-center py-8 text-gray-400 ">
+                    No videos in queue
+                  </p>
+                </Card>
+              </CardContent>
+            )}
 
             {queue?.map((video, index) => (
-              <Card key={index} className="bg-gray-900 border-gray-800 mt-2">
+              <Card key={index} className="bg-gray-900 border-gray-800 mt-6 ">
                 <CardContent className="p-4 flex items-center space-x-4 h-20">
                   <img
                     src={
-                      video?.smallImg ||
+                      video?.smallImg ??
                       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3GPtE-cUcwF8cEk5pohVVMrjl86d04BoEg&s"
                     }
                     alt="LoadingImg..."
@@ -291,7 +325,6 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
             ))}
           </div>
         </div>
-        
       </div>
       <ToastContainer />
     </div>
