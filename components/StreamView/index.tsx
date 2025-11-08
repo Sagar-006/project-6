@@ -89,7 +89,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       console.log("this is inside Post streams method", res);
       // toast.error(res)
 
-      setQueue([...queue, await res.data.stream]);
+      setQueue([...queue,res.data.stream]);
       setLoading(false);
       setInputLink("");
 

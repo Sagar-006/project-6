@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Users, Radio, Headphones } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "./lib/session";
-import Navbar from "@/components/Navbar";
 import { AuthCheck } from "./lib/AuthCheck";
-import NavbarServer from "@/components/NavbarServer";
 
 export default async function LandingPage() {
   const session = await getSession();
@@ -18,7 +15,7 @@ export default async function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* <Appbar showThemeSwitch={false} /> */}
-      <AuthCheck/>
+      <AuthCheck />
       {/* <div className="w-full"><NavbarServer/></div> */}
       <main className="flex-1 py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6">
@@ -34,9 +31,7 @@ export default async function LandingPage() {
             </div>
             <div className="space-x-4">
               <Button className="bg-purple-600 text-white hover:bg-purple-700">
-                <Link
-                  href={'/auth/signin'}
-                >
+                <Link href={"/auth/signin"} prefetch={false}>
                   Get Started
                 </Link>
               </Button>
@@ -100,6 +95,7 @@ export default async function LandingPage() {
                     authType: "signin",
                   },
                 }}
+                prefetch={false}
               >
                 <Button
                   type="submit"
@@ -120,13 +116,15 @@ export default async function LandingPage() {
         <nav className="flex gap-4 sm:ml-auto sm:gap-6">
           <Link
             className="text-xs text-gray-400 transition-colors hover:text-purple-400"
-            href="#"
+            href="/auth/signin"
+            prefetch={false}
           >
             Terms of Service
           </Link>
           <Link
             className="text-xs text-gray-400 transition-colors hover:text-purple-400"
-            href="#"
+            href="/auth/signin"
+            prefetch={false}
           >
             Privacy
           </Link>
