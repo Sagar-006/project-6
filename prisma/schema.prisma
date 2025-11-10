@@ -21,6 +21,7 @@ model User {
   accounts      Account[]
   streams       Stream[] @relation("user")
   upvotes       Upvote[]
+  added         Stream[]  @relation("addedBy")
   
   @@unique([email])
   @@map("user")
@@ -85,7 +86,9 @@ model Stream{
   createAt    DateTime  @default(now())
   upvotes     Upvote[]
   userId      String
+  addedById   String
   user        User      @relation(fields: [userId],references: [id],name:"user")
+  addedBy     User  @relation(fields: [addedById],references: [id],name: "addedBy")  
   currentStream CurrentStream?
 }
 

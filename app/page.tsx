@@ -4,6 +4,8 @@ import { Users, Radio, Headphones } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "./lib/session";
 import { AuthCheck } from "./lib/AuthCheck";
+import { TextLoop } from "@/components/ui/TextLoop";
+import { TextLoopCustomVariantsTransition } from "@/components/ui/TextLoopCustom";
 
 export default async function LandingPage() {
   const session = await getSession();
@@ -22,7 +24,11 @@ export default async function LandingPage() {
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl/none">
-                Let Your Fans Choose the Beat
+                Let Your Fans Choose the{" "}
+                <span className="inline-block min-w-[120px] text-left">
+                  
+                  <TextLoopCustomVariantsTransition />
+                </span>
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-400 md:text-xl">
                 Empower your audience to curate your music stream. Connect with

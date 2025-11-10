@@ -95,12 +95,26 @@ export async function POST(req: NextRequest) {
       console.log(thumbnails);
       thumbnails.sort((a: { width: number }, b: { width: number }) => a.width < b.width ? -1 : 1);
       
+      // const existingAddedStream = await prisma.stream.findFirst({
+      //   where:{
+      //     addedById:user.id
+      //   }
+      // })
+
+      // if(existingAddedStream && existingAddedStream.id){
+      //   return NextResponse.json({
+      //     message:'You already have a playlist!'
+      //   },
+      // {
+      //   status:409
+      // })
+      // }
 
       console.log("Reached stream create");
       const stream = await db.stream.create({
         data: {
           userId: data.creatorId,
-          // addedBy: user.id,
+          addedById: user.id,
           url: data.url,
           extractedId: videoId,
           type: "Youtube",

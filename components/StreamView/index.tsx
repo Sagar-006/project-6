@@ -90,7 +90,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       // toast.error(res)
 
       setQueue([...queue,res.data.stream]);
-      setLoading(false);
+      // setLoading(false);
       setInputLink("");
 
       toast.success('Video added to queue');
@@ -99,7 +99,6 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       toast.error(error.response?.data.message || 'something went wrong')
     }finally{
       setLoading(false);
-      setInputLink('')
     }
   };
 
@@ -185,6 +184,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
           {/* Add to Queue */}
           <form className="flex gap-2 mb-2" onSubmit={handleSubmit}>
             <Input
+            value={inputLink}
               placeholder="Paste YouTube link here"
               className="bg-gray-900 border-gray-700"
               onChange={(e) => setInputLink(e.target.value)}
