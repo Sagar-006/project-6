@@ -87,13 +87,7 @@ export default async function LandingPage() {
               </p>
             </div>
             <div className="w-full max-w-sm">
-              {/*<form className="flex space-x-2">
-                 <Input
-                  className="focus-visible:ring-offset-0 focus-visible:ring-purple-600 bg-gray-800  bg-opacity-50 placeholder:text-gray-400 border-gray-400 text-white"
-                  placeholder="Enter your email"
-                  ref={mailRef}
-                  type="email"
-                /> */}
+              
               <Link
                 href={{
                   pathname: "/auth",
@@ -105,9 +99,9 @@ export default async function LandingPage() {
               >
                 <Button
                   type="submit"
-                  className="bg-purple-600 text-white hover:bg-purple-700"
+                  className="bg-purple-600 cursor-pointer text-white hover:bg-purple-700"
                 >
-                  Sign Up
+                  SignIn
                 </Button>
               </Link>
               {/* </form> */}

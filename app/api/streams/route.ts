@@ -72,168 +72,74 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if(checkVideoIsAlreadyExist){
-      return NextResponse.json({
-        message:"Video is Already In Stream!"
-      },{
-        status:409
-      })
-    }
-
-    
-      const ytRes = await youtubesearchapi.GetVideoDetails(videoId);
-      console.log(ytRes)
-    
-
-    if (!ytRes) {
-      return NextResponse.json({
-        message: "No Response from Youtube-Api!",
-      });
-    }
-      
-      const thumbnails = ytRes.thumbnail.thumbnails;
-      console.log(thumbnails);
-      thumbnails.sort((a: { width: number }, b: { width: number }) => a.width < b.width ? -1 : 1);
-      
-      // const existingAddedStream = await prisma.stream.findFirst({
-      //   where:{
-      //     addedById:user.id
-      //   }
-      // })
-
-      // if(existingAddedStream && existingAddedStream.id){
-      //   return NextResponse.json({
-      //     message:'You already have a playlist!'
-      //   },
-      // {
-      //   status:409
-      // })
-      // }
-
-      console.log("Reached stream create");
-      const stream = await db.stream.create({
-        data: {
-          userId: data.creatorId,
-          addedById: user.id,
-          url: data.url,
-          extractedId: videoId,
-          type: "Youtube",
-          title: ytRes.title ?? "can't find video",
-          smallImg:
-            (thumbnails.length > 1
-              ? thumbnails[thumbnails.length - 2].url
-              : thumbnails[thumbnails.length - 1].url) ??
-            "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
-          bigImg:
-            thumbnails[thumbnails.length - 1].url ??
-            "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
-          // spaceId: data.spaceId,
+    if (checkVideoIsAlreadyExist) {
+      return NextResponse.json(
+        {
+          message: "Video is Already In Stream!",
         },
-      });
+        {
+          status: 409,
+        }
+      );
+    }
 
-      return NextResponse.json({
-        ...stream,
-        hasUpvoted: false,
-        upvotes: 0,
-      });
-      console.log("Reached end of POST handler");
-    
+    // const ytRes = await youtubesearchapi.GetVideoDetails(videoId);
+    const ytRes = await youtubesearchapi.GetVideoDetails(videoId);
+    console.log("YT Response ", JSON.stringify(ytRes, null, 2));
+
+    if (!ytRes || typeof ytRes !== "object") {
+      return NextResponse.json(
+        {
+          message: "No valid Response received from Youtube-Api!",
+        },
+        { status: 500 }
+      );
+    }
+
+    const thumbnails = ytRes.thumbnail.thumbnails;
+    console.log(thumbnails);
+    thumbnails.sort((a: { width: number }, b: { width: number }) =>
+      a.width < b.width ? -1 : 1
+    );
+
+    console.log("Reached stream create");
+    const stream = await db.stream.create({
+      data: {
+        userId: data.creatorId,
+        addedById: user.id,
+        url: data.url,
+        extractedId: videoId,
+        type: "Youtube",
+        title: ytRes?.title ??  "can't find video",
+        smallImg:
+          (thumbnails.length > 1
+            ? thumbnails[thumbnails.length - 2].url
+            : thumbnails[thumbnails.length - 1].url) ??
+          "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
+        bigImg:
+          thumbnails[thumbnails.length - 1].url ??
+          "https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg",
+        // spaceId: data.spaceId,
+      },
+    });
+
+    return NextResponse.json({
+      ...stream,
+      hasUpvoted: false,
+      upvotes: 0,
+    });
   } catch (e) {
-    console.error(e);
+    console.error("Full error:", e); // This shows up in terminal/Vercel
     return NextResponse.json(
       {
-        error:e,
+        error: e instanceof Error ? e.message : JSON.stringify(e),
         message: "Error while adding a stream",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
 
-// export async function GET(req: NextRequest) {
-//   const spaceId = req.nextUrl.searchParams.get("spaceId");
-//   const session = await getSession();
-//   if (!session?.user.id) {
-//     return NextResponse.json(
-//       {
-//         message: "Unauthenticated",
-//       },
-//       {
-//         status: 403,
-//       }
-//     );
-//   }
-//   const user = session.user;
-
-//   if (!spaceId) {
-//     return NextResponse.json(
-//       {
-//         message: "Error",
-//       },
-//       {
-//         status: 411,
-//       }
-//     );
-//   }
-
-//   const [space, activeStream] = await Promise.all([
-//     db.space.findUnique({
-//       where: {
-//         id: spaceId,
-//       },
-//       include: {
-//         streams: {
-//           include: {
-//             _count: {
-//               select: {
-//                 upvotes: true,
-//               },
-//             },
-//             upvotes: {
-//               where: {
-//                 userId: session.user.id,
-//               },
-//             },
-//           },
-//           where: {
-//             played: false,
-//           },
-//         },
-//         _count: {
-//           select: {
-//             streams: true,
-//           },
-//         },
-//       },
-//     }),
-//     db..findFirst({
-//       where: {
-//         spaceId: spaceId,
-//       },
-//       include: {
-//         stream: true,
-//       },
-//     }),
-//   ]);
-
-//   const hostId = space?.hostId;
-//   const isCreator = session.user.id === hostId;
-
-//   return NextResponse.json({
-//     streams: space?.streams.map((_count, ...rest) => ({
-//       ...rest,
-//       upvotes: _count.upvotes,
-//       // @ts-ignore
-//       haveUpvoted: rest.upvotes.length ? true : false,
-//     })),
-//     activeStream,
-//     hostId,
-//     isCreator,
-//     spaceName: space?.name,
-//   });
-// }
 export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
   const session = await getSession();
