@@ -4,7 +4,6 @@ import { Users, Radio, Headphones } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "./lib/session";
 import { AuthCheck } from "./lib/AuthCheck";
-import { TextLoop } from "@/components/ui/TextLoop";
 import { TextLoopCustomVariantsTransition } from "@/components/ui/TextLoopCustom";
 
 export default async function LandingPage() {
@@ -15,15 +14,13 @@ export default async function LandingPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-      {/* <Appbar showThemeSwitch={false} /> */}
+    <div className=" flex min-h-screen flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <AuthCheck />
-      {/* <div className="w-full"><NavbarServer/></div> */}
       <main className="flex-1 py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl/none">
+              <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl/none ">
                 Let Your Fans Choose the{" "}
                 <span className="inline-block min-w-[120px] text-left">
                   
@@ -36,7 +33,8 @@ export default async function LandingPage() {
               </p>
             </div>
             <div className="space-x-4">
-              <Button className="font-inter bg-purple-600 text-white hover:bg-purple-700">
+              
+              <Button className="font-hanken bg-purple-600 text-white hover:bg-purple-700">
                 <Link href={"/auth/signin"} prefetch={false}>
                   Get Started
                 </Link>

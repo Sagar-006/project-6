@@ -9,9 +9,8 @@ import { ChevronDown, ChevronUp, Share2 } from "lucide-react";
 import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
-import { toast, ToastContainer } from 'react-toastify';
-import Navbar from "../Navbar";
-import Navbarclient from "../Navbar";
+import { toast, ToastContainer } from "react-toastify";
+import { Spotlight } from "../ui/spotlight";
 
 interface Video {
   id: string;
@@ -28,19 +27,19 @@ interface Video {
 
 interface StreamViewType {
   creatorId: string;
-  playVideo:boolean;
+  playVideo: boolean;
 }
 
 const REFRESH_INTERVAL_MS = 10 * 1000;
-export default function StreamView({ creatorId,playVideo }: StreamViewType) {
+export default function StreamView({ creatorId, playVideo }: StreamViewType) {
   const [inputLink, setInputLink] = useState("");
   const [queue, setQueue] = useState<Video[]>([]);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  const [loading,setLoading] = useState<boolean>(false);
-  const [playNextLoader,setPlayNextLoader] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [playNextLoader, setPlayNextLoader] = useState<boolean>(false);
 
   async function refreshStreams() {
-    try{
+    try {
       const res = await axios.get(`/api/streams/?creatorId=${creatorId}`, {
         withCredentials: true,
       });
@@ -48,24 +47,22 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       setQueue(
         json.streams.sort((a: any, b: any) => (a.upvotes < b.upvotes ? 1 : -1))
       );
-      setCurrentVideo(video => {
-        if(video?.id === json.activeStream?.stream?.id){
-          return video
+      setCurrentVideo((video) => {
+        if (video?.id === json.activeStream?.stream?.id) {
+          return video;
         }
-        return json.activeStream.stream
-      })
-    }
-    catch(e){
-      return e
+        return json.activeStream.stream;
+      });
+    } catch (e) {
+      return e;
     }
   }
 
   useEffect(() => {
     refreshStreams();
-    
+
     const Interval = setInterval(() => {
-      refreshStreams()
-      
+      refreshStreams();
     }, REFRESH_INTERVAL_MS);
 
     return () => clearInterval(Interval);
@@ -73,12 +70,12 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     if (!inputLink.trim()) {
       toast.error("Please enter a YouTube link");
       return;
     }
-    try{
+    try {
       const res = await axios.post(
         `/api/streams`,
         { creatorId: creatorId, url: inputLink },
@@ -86,14 +83,14 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       );
       console.log("this is inside Post streams method", res);
 
-      setQueue([...queue,res.data.stream]);
+      setQueue([...queue, res.data.stream]);
       setInputLink("");
 
-      toast.success('Video added to queue');
-    }catch(error:any){
+      toast.success("Video added to queue");
+    } catch (error: any) {
       // console.error('API error')
-      toast.error(error.response?.data.message || 'something went wrong')
-    }finally{
+      toast.error(error.response?.data.message || "something went wrong");
+    } finally {
       setLoading(false);
     }
   };
@@ -124,7 +121,6 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
           withCredentials: true,
         }
       );
-
     } catch (e) {
       console.log(e);
     }
@@ -132,60 +128,66 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
 
   const playNext = async () => {
     if (queue.length > 0) {
-      try{
+      try {
         const data = await fetch(`/api/streams/next`, {
           method: "GET",
         });
         const json = await data.json();
         setCurrentVideo(json.stream);
-        setQueue(q => q.filter(x => x.id !== json.stream?.id))
-      }catch(e){
-        console.log(e)
+        setQueue((q) => q.filter((x) => x.id !== json.stream?.id));
+      } catch (e) {
+        console.log(e);
       }
       setPlayNextLoader(false);
-      
     }
-
   };
 
   const handleShare = () => {
     const shareableLink = `${window.location.origin}/creator/${creatorId}`;
-    navigator.clipboard.writeText(shareableLink).then(() => {
-      toast.success('Link copied to clipboard!')
-    },(err) => {
-      console.log(err);
-      toast.error('Failed to copy link,please try again')
-    })
-  }
+    navigator.clipboard.writeText(shareableLink).then(
+      () => {
+        toast.success("Link copied to clipboard!");
+      },
+      (err) => {
+        console.log(err);
+        toast.error("Failed to copy link,please try again");
+      }
+    );
+  };
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white p-6 border">
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-36 mt-4 border">
+    <div className="min-h-screen flex flex-col  p-6 bg-white text-black dark:bg-black dark:text-white">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-36 mt-4 ">
         <div>
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold">Add a song</h1>
             <Button
               onClick={handleShare}
-              variant="outline"
-              className="bg-purple-600 hover:bg-purple-700 text-white border-0"
+              variant="secondary"
+              className="bg-purple-600 hover:bg-purple-700 text-white border-0 cursor-pointer"
             >
-              <Share2 className="w-4 h-4 mr-2" /> Share
+              <Share2 className="w-4 h-4 mr-2 " /> Share
             </Button>
           </div>
 
           {/* Add to Queue */}
           <form className="flex gap-2 mb-2" onSubmit={handleSubmit}>
-            <Input
-            value={inputLink}
-              placeholder="Paste YouTube link here"
-              className="bg-gray-900 border-gray-700"
-              onChange={(e) => setInputLink(e.target.value)}
-            />
+            <div className="relative w-full">
+              {/* <Spotlight className="absolute inset-0 rounded-lg pointer-events-none" /> */}
+
+              <Input
+                value={inputLink}
+                placeholder="Paste YouTube link here"
+                className="bg-gray-900 border border-gray-700 text-white relative z-10"
+                onChange={(e) => setInputLink(e.target.value)}
+              />
+            </div>
+
             <Button
               disabled={loading}
               type="submit"
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white"
             >
               {loading ? "Loading..." : "Add to Queue"}
             </Button>
@@ -211,25 +213,19 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
                     {playVideo ? (
                       <>
                         <div className="flex-1 w-full h-full ">
-                          {/* <iframe
+                          <Youtube
+                            videoId={currentVideo.extractedId}
+                            onEnd={playNext}
+                            opts={{
+                              width: "100%",
+                              height: "100%",
+                              playerVars: {
+                                autoplay: 1,
+                                controls: 1,
+                              },
+                            }}
                             className="w-full h-full object-cover"
-                            src={`https://www.youtube.com/embed/${currentVideo.extractedId}?autoplay=1`}
-                            allow="autoplay"
-                          ></iframe> */}
-                          <Youtube 
-                          videoId={currentVideo.extractedId}
-                          onEnd={playNext}
-                          opts={{
-                            width:'100%',
-                            height:'100%',
-                            playerVars:{
-                              autoplay:1,
-                              controls:1
-                            }
-                          }}
-                          className="w-full h-full object-cover"
                           />
-                          {/* <p>{currentVideo.title}</p> */}
                         </div>
                       </>
                     ) : (
@@ -255,7 +251,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
             {queue.length > 0 && playVideo && (
               <Button
                 disabled={playNextLoader}
-                className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white"
+                className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
                 onClick={playNext}
               >
                 {playNextLoader ? "Loading..." : "Play Next"}
@@ -265,10 +261,12 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
         </div>
         <div>
           <div className="space-y-4 pt-4 ">
-            <h2 className="text-lg font-semibold mb-3 ml-6 ">Upcoming Songs</h2>
+            <h2 className="text-lg borde font-semibold mb-3 ml-6 ">
+              Upcoming Songs
+            </h2>
             {queue.length === 0 && (
-              <CardContent >
-                <Card className="bg-gray-900 border-0 h-[150px] ">
+              <CardContent>
+                <Card className=" bg-gray-900 border-0 h-[150px] ">
                   <p className="text-center py-8 text-gray-400 ">
                     No videos in queue
                   </p>
@@ -290,7 +288,6 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
 
                   <div>
                     <h3 className="font-semibold text-white">{video?.title}</h3>
-                    {/* <h1>{video.haveUpvoted}</h1> */}
 
                     <div className="flex items-center space-x-2 mt-2 ">
                       <Button
@@ -302,7 +299,7 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
                             video?.haveUpvoted ? false : true
                           )
                         }
-                        className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                        className="flex items-center space-x-1 bg-gray-800 text-white border-gray-700 hover:bg-gray-700 cursor-pointer"
                       >
                         {video?.haveUpvoted ? (
                           <ChevronDown className="h-4 w-4" />

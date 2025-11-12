@@ -31,9 +31,6 @@ export default function AddSongForm({
   
 }) {
   
-  // const user = requireAuth()
-  // const videoId = "abc252"
-
   // const handleSubmit = async (e: React.FormEvent) => {
   //   e.preventDefault();
   //   if (inputLink.match(YT_REGEX)) {

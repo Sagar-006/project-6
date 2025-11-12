@@ -3,7 +3,6 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./db";
 // import { PrismaClient } from "@prisma/client";
 
-// const prisma = new PrismaClient;
 console.log(process.env.GOOGLE_CLIENT_ID);
 console.log(process.env.GOOGLE_CLIENT_SECRET);
 

@@ -14,5 +14,5 @@ export function Logout ({children}:{children:React.ReactNode}) {
 
     }
 
-    return <Button variant={'secondary'} onClick={LogOutUser}>{children}</Button>
+    return <Button className="cursor-pointer" variant={'secondary'} onClick={LogOutUser}>{children}</Button>
 }
