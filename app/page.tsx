@@ -36,7 +36,7 @@ export default async function LandingPage() {
               </p>
             </div>
             <div className="space-x-4">
-              <Button className="bg-purple-600 text-white hover:bg-purple-700">
+              <Button className="font-inter bg-purple-600 text-white hover:bg-purple-700">
                 <Link href={"/auth/signin"} prefetch={false}>
                   Get Started
                 </Link>

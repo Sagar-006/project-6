@@ -44,12 +44,10 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
       const res = await axios.get(`/api/streams/?creatorId=${creatorId}`, {
         withCredentials: true,
       });
-      // console.log("this is incide refreshStreams function", res.data);
       const json = res.data;
       setQueue(
         json.streams.sort((a: any, b: any) => (a.upvotes < b.upvotes ? 1 : -1))
       );
-      // setCurrentVideo(json.activeStream.stream)
       setCurrentVideo(video => {
         if(video?.id === json.activeStream?.stream?.id){
           return video
@@ -87,10 +85,8 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
         { withCredentials: true }
       );
       console.log("this is inside Post streams method", res);
-      // toast.error(res)
 
       setQueue([...queue,res.data.stream]);
-      // setLoading(false);
       setInputLink("");
 
       toast.success('Video added to queue');
@@ -129,14 +125,12 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
         }
       );
 
-      // console.log("this is upvote res", res.data);
     } catch (e) {
       console.log(e);
     }
   };
 
   const playNext = async () => {
-   
     if (queue.length > 0) {
       try{
         const data = await fetch(`/api/streams/next`, {
@@ -166,12 +160,11 @@ export default function StreamView({ creatorId,playVideo }: StreamViewType) {
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white p-6">
-      {/* <Navbarclient session={creatorId}/> */}
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-32 mt-4 ">
+    <div className="min-h-screen flex flex-col bg-black text-white p-6 border">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-36 mt-4 border">
         <div>
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold">Song Voting Queue</h1>
+            <h1 className="text-2xl font-bold">Add a song</h1>
             <Button
               onClick={handleShare}
               variant="outline"

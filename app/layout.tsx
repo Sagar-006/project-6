@@ -2,11 +2,22 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavbarServer from "@/components/NavbarServer";
+import { Hanken_Grotesk } from "next/font/google";
+
+
+const hanken = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"], // choose the weights you need
+  variable: "--font-hanken-grotesk",
+  display: "swap",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+
+// const inter = Inter({subsets:['latin'],variable:'--font-inter'});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -26,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${hanken.className} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NavbarServer/>
         

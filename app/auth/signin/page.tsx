@@ -4,10 +4,11 @@ import { authClient } from "../../lib/auth-client";
 import Image from "next/image";
 
 export default function Signin() {
+  const callbackURL = window.location.href;
   const handleGoogleSignin = async () => {
     const res = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "",
+      callbackURL:callbackURL,
     });
   };
   return (
