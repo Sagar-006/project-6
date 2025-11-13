@@ -14,7 +14,6 @@ export async function GET() {
     return NextResponse.json({ message: "Unauthenticated" }, { status: 403 });
   }
 
-  // ✅ Find the most upvoted, unplayed stream
   const mostUpvotedStream = await prisma.stream.findFirst({
     where: {
       userId: user.id,
@@ -33,7 +32,6 @@ export async function GET() {
     });
   }
 
-  // ✅ Find current stream (to delete later)
   const current = await prisma.currentStream.findUnique({
     where: {
       userId: user.id,
@@ -43,7 +41,6 @@ export async function GET() {
     },
   });
 
-  // ✅ Update current stream + mark played
   await Promise.all([
     prisma.currentStream.upsert({
       where: { userId: user.id },
@@ -64,7 +61,6 @@ export async function GET() {
     }),
   ]);
 
-  // ✅ Delete the previous stream (if exists)
   if (current?.streamId) {
     await prisma.stream.delete({
       where: {

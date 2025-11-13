@@ -12,6 +12,7 @@ export function TextLoopCustomVariantsTransition() {
           stiffness: 900,
           damping: 80,
           mass: 10,
+          
         }}
         variants={{
           initial: {

@@ -1,19 +1,15 @@
 import { redirect } from "next/navigation";
-import { getSession, requireAuth } from "../lib/session";
-import AddSongForm from "@/components/StreamView/AddSongForm";
+import { getSession } from "../lib/session";
 import StreamView from "@/components/StreamView";
-import { Logout } from "@/components/Logout";
-import { LogOut } from "lucide-react";
-import NavbarServer from "@/components/NavbarServer";
 
-export default async function Dashboard(){
+export default async function Dashboard() {
   const session = await getSession();
-  if(!session){
-    redirect("/auth/signin")
+  if (!session) {
+    redirect("/auth/signin");
   }
 
-  const creatorId =  session.user.id;
-  console.log('this is Creator Id',creatorId)
+  const creatorId = session.user.id;
+  console.log("this is Creator Id", creatorId);
 
   return (
     <div className=" bg-white text-black dark:bg-black dark:text-white h-full w-full ">
@@ -21,4 +17,4 @@ export default async function Dashboard(){
       <StreamView creatorId={creatorId} playVideo={true} />
     </div>
   );
-} 
+}

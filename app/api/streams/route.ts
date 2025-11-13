@@ -1,14 +1,9 @@
-// export const runtime = "nodejs";
-
 import { getSession } from "@/app/lib/session";
 import { YT_REGEX } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import * as youtubesearchapi from "youtube-search-api";
-import yts from "yt-search";
-import { authClient } from "@/app/lib/auth-client";
 import db from "@/app/lib/db";
-import { traceGlobals } from "next/dist/trace/shared";
 import prisma from "@/app/lib/db";
 
 const CreateStreamSchema = z.object({
@@ -52,7 +47,6 @@ export async function POST(req: NextRequest) {
 
     const isYt = data.url.match(YT_REGEX);
     const videoId = data.url ? data.url.match(YT_REGEX)?.[1] : null;
-    // console.log("this isYt and VideoId",isYt,videoId)
 
     if (!isYt || !videoId) {
       return NextResponse.json(
@@ -83,7 +77,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // const ytRes = await youtubesearchapi.GetVideoDetails(videoId);
     const ytRes = await youtubesearchapi.GetVideoDetails(videoId);
     console.log("YT Response ", JSON.stringify(ytRes, null, 2));
 
@@ -110,7 +103,7 @@ export async function POST(req: NextRequest) {
         url: data.url,
         extractedId: videoId,
         type: "Youtube",
-        title: ytRes?.title ??  "can't find video",
+        title: ytRes?.title ?? "can't find video",
         smallImg:
           (thumbnails.length > 1
             ? thumbnails[thumbnails.length - 2].url
@@ -129,7 +122,7 @@ export async function POST(req: NextRequest) {
       upvotes: 0,
     });
   } catch (e) {
-    console.error("Full error:", e); // This shows up in terminal/Vercel
+    console.error("Full error:", e);
     return NextResponse.json(
       {
         error: e instanceof Error ? e.message : JSON.stringify(e),
@@ -144,39 +137,43 @@ export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get("creatorId");
   const session = await getSession();
   const user = await db.user.findFirst({
-    where:{
-      email:session?.user.email ?? ""
-    }
-  })
-  if(!creatorId){
-    return NextResponse.json({
-      message:"Need creatorId!"
-    })
-  }
-  const [streams,activeStream] = await Promise.all([await db.stream.findMany({
     where: {
-      userId: creatorId,
-      played:false
+      email: session?.user.email ?? "",
     },
-    include: {
-      _count: {
-        select: {
-          upvotes: true,
+  });
+  if (!creatorId) {
+    return NextResponse.json({
+      message: "Need creatorId!",
+    });
+  }
+  const [streams, activeStream] = await Promise.all([
+    await db.stream.findMany({
+      where: {
+        userId: creatorId,
+        played: false,
+      },
+      include: {
+        _count: {
+          select: {
+            upvotes: true,
+          },
+        },
+        upvotes: {
+          where: {
+            userId: user?.id,
+          },
         },
       },
-      upvotes: {
-        where: {
-          userId: user?.id,
-        },
+    }),
+    prisma.currentStream.findFirst({
+      where: {
+        userId: creatorId,
       },
-    },
-  }), prisma.currentStream.findFirst({
-    where:{
-      userId:creatorId
-    },include:{
-      stream:true
-    }
-  })])
+      include: {
+        stream: true,
+      },
+    }),
+  ]);
 
   return NextResponse.json({
     streams: streams.map(({ _count, ...rest }) => ({
@@ -184,6 +181,6 @@ export async function GET(req: NextRequest) {
       upvotes: _count.upvotes,
       haveUpvoted: rest.upvotes.length ? true : false,
     })),
-    activeStream
+    activeStream,
   });
 }

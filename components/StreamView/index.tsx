@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import Youtube, { YouTubeProps } from "react-youtube";
+import Youtube from "react-youtube";
 import { ChevronDown, ChevronUp, Share2 } from "lucide-react";
 import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
 import { toast, ToastContainer } from "react-toastify";
-import { Spotlight } from "../ui/spotlight";
 
 interface Video {
   id: string;
@@ -156,6 +155,7 @@ export default function StreamView({ creatorId, playVideo }: StreamViewType) {
   };
 
   const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
+
   return (
     <div className="min-h-screen flex flex-col  p-6 bg-white text-black dark:bg-black dark:text-white">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2 gap-x-4 px-36 mt-4 ">
@@ -167,7 +167,7 @@ export default function StreamView({ creatorId, playVideo }: StreamViewType) {
               variant="secondary"
               className="bg-purple-600 hover:bg-purple-700 text-white border-0 cursor-pointer"
             >
-              <Share2 className="w-4 h-4 mr-2 " /> Share
+              <Share2 className="w-4 h-4 mr-2 "/> Share
             </Button>
           </div>
 

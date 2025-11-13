@@ -1,6 +1,5 @@
 import db from "@/app/lib/db";
 import { getSession } from "@/app/lib/session";
-import { stat } from "fs";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
@@ -49,12 +48,12 @@ export async function POST(req: NextRequest) {
     });
   } catch (e) {
     return NextResponse.json(
-        {
-            message:"Error while upvoting",
-        },
-        {
-            status:403,
-        }
-    )
+      {
+        message: "Error while upvoting",
+      },
+      {
+        status: 403,
+      }
+    );
   }
 }

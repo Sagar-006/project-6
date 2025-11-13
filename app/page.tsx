@@ -9,8 +9,8 @@ import { TextLoopCustomVariantsTransition } from "@/components/ui/TextLoopCustom
 export default async function LandingPage() {
   const session = await getSession();
 
-  if(session){
-    redirect("/dashboard")
+  if (session) {
+    redirect("/dashboard");
   }
 
   return (
@@ -23,7 +23,6 @@ export default async function LandingPage() {
               <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl/none ">
                 Let Your Fans Choose the{" "}
                 <span className="inline-block min-w-[120px] text-left">
-                  
                   <TextLoopCustomVariantsTransition />
                 </span>
               </h1>
@@ -33,7 +32,6 @@ export default async function LandingPage() {
               </p>
             </div>
             <div className="space-x-4">
-              
               <Button className="font-hanken bg-purple-600 text-white hover:bg-purple-700">
                 <Link href={"/auth/signin"} prefetch={false}>
                   Get Started
@@ -85,7 +83,6 @@ export default async function LandingPage() {
               </p>
             </div>
             <div className="w-full max-w-sm">
-              
               <Link
                 href={{
                   pathname: "/auth",
@@ -102,7 +99,6 @@ export default async function LandingPage() {
                   SignIn
                 </Button>
               </Link>
-              {/* </form> */}
             </div>
           </div>
         </div>
