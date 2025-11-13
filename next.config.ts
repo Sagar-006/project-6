@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   },
 
   compress: true, // enables gzip compression
-  swcMinify: true, // faster JS minification
+  // swcMinify: true, // faster JS minification
   experimental: {
     optimizeCss: true, // improves CSS loading performance
     scrollRestoration: true, // smoother navigation

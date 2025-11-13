@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, Transition, Variants } from "framer-motion";
 
 interface TextLoopProps {
   children: React.ReactNode[];
   className?: string;
   interval?: number;
-  variants?: any;
-  transition?: any;
+  variants?: Variants;
+  transition?: Transition;
 }
 
 export const TextLoop = ({

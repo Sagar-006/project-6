@@ -2,6 +2,7 @@ import { getSession } from "@/app/lib/session";
 import Navbarclient from "./Navbar";
 
 export default async function NavbarServer(){
-    const session = await getSession();
-    return <Navbarclient session={session}/>
+    const fullsession = await getSession();
+    const sessionProp = fullsession ? fullsession.session : null
+    return <Navbarclient session={sessionProp}/>
 } 

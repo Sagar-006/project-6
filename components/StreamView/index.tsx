@@ -86,7 +86,7 @@ export default function StreamView({ creatorId, playVideo }: StreamViewType) {
       setInputLink("");
 
       toast.success("Video added to queue");
-    } catch (error: any) {
+    } catch (error:any) {
       // console.error('API error')
       toast.error(error.response?.data.message || "something went wrong");
     } finally {
