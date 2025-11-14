@@ -1,10 +1,9 @@
-export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import NavbarServer from "@/components/NavbarServer";
+import NavbarServer from "@/components/NavbarServer"; // Ensure this is server-safe
 import { Hanken_Grotesk } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import ClientThemeProvider from "@/components/ClientThemeProvider";
 
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],
@@ -30,24 +29,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body
-        className={`${hanken.className} ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${hanken.className} ${geistSans.variable} ${geistMono.variable}`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ClientThemeProvider>
           <NavbarServer />
-
           {children}
-        </ThemeProvider>
+        </ClientThemeProvider>
       </body>
     </html>
   );

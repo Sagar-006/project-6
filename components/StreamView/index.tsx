@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Youtube from "react-youtube";
 import { ChevronDown, ChevronUp, Share2 } from "lucide-react";
-import axios from "axios";
+import axios,{AxiosError} from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
 import { toast, ToastContainer } from "react-toastify";
+import Image from "next/image";
 
 interface Video {
   id: string;
@@ -91,8 +92,14 @@ export default function StreamView({ creatorId, playVideo }: StreamViewProps) {
       setQueue((prev) => [...prev, res.data.stream]);
       setInputLink("");
       toast.success("Video added to queue");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message ?? "Something went wrong");
+    } catch (error: unknown) {
+       if (axios.isAxiosError(error)) {
+         // Now error is typed as AxiosError
+         toast.error(error.response?.data?.message ?? "Something went wrong");
+       } else {
+         // Fallback for other error types
+         toast.error("Something went wrong");
+       }
     } finally {
       setLoading(false);
     }
@@ -150,7 +157,7 @@ export default function StreamView({ creatorId, playVideo }: StreamViewProps) {
       .catch(() => toast.error("Failed to copy link, please try again"));
   };
 
-  const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
+  // const embedurl = `https://www.youtube.com/embed/${currentVideo?.extractedId}?autoplay=1`;
 
   return (
     <div className="min-h-screen flex flex-col p-6 bg-white text-black dark:bg-black dark:text-white">
