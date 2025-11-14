@@ -3,7 +3,6 @@ import Link from "next/link"
 import { Button } from "./ui/button";
 import { Logout } from "./Logout";
 import ThemeToggle from "./ThemeToggle";
-import { Session } from "better-auth";
 
 type SessionType = {
   id: string;

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Youtube from "react-youtube";
 import { ChevronDown, ChevronUp, Share2 } from "lucide-react";
-import axios,{AxiosError} from "axios";
+import axios from "axios";
 import LiteYoutubeEmbed from "react-lite-youtube-embed";
 import { YT_REGEX } from "@/lib/utils";
 import { toast, ToastContainer } from "react-toastify";
@@ -223,10 +223,15 @@ export default function StreamView({ creatorId, playVideo }: StreamViewProps) {
                     />
                   ) : (
                     <>
-                      <img
+                      import Image from "next/image"; // Inside your JSX:
+                      <Image
                         src={currentVideo.bigImg}
-                        className="w-full h-72 object-cover rounded"
                         alt={currentVideo.title ?? "Video preview"}
+                        width={800} // specify width or layout
+                        height={288} // height to maintain aspect ratio (e.g., 800 * 0.36)
+                        className="rounded object-cover w-full h-72"
+                        priority={true} // optional, for important images
+                        sizes="(max-width: 768px) 100vw, 800px" // optional responsive sizes
                       />
                       <p className="mt-2 text-center font-semibold text-white">
                         {currentVideo.title}
@@ -271,13 +276,15 @@ export default function StreamView({ creatorId, playVideo }: StreamViewProps) {
             {queue.map((video) => (
               <Card key={video.id} className="bg-gray-900 border-gray-800 mt-6">
                 <CardContent className="p-4 flex items-center space-x-4 h-20">
-                  <img
+                  <Image
                     src={
                       video.smallImg ??
                       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3GPtE-cUcwF8cEk5pohVVMrjl86d04BoEg&s"
                     }
                     alt={video.title ?? "Loading image"}
-                    className="w-30 h-20 object-cover rounded"
+                    width={120} // adjust width according to design (w-30 means 7.5rem = 120px)
+                    height={80} // adjust height according to design (h-20 means 5rem = 80px)
+                    className="object-cover rounded"
                   />
                   <div>
                     <h3 className="font-semibold text-white">{video.title}</h3>

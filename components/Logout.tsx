@@ -1,7 +1,6 @@
 "use client"
-import { auth } from "@/app/lib/auth"
 import { authClient } from "@/app/lib/auth-client"
-import { redirect, useRouter } from "next/navigation"
+import {  useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 
 export function Logout ({children}:{children:React.ReactNode}) {
