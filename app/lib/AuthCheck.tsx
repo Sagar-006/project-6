@@ -11,6 +11,6 @@ export function AuthCheck() {
     if (session.data?.user) {
       router.push("/dashboard");
     }
-  }, [session]);
+  }, [router,session]);
   return null;
 }

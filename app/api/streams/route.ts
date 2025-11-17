@@ -12,7 +12,7 @@ const CreateStreamSchema = z.object({
   // spaceId: z.string(),
 });
 
-const MAX_QUEUE_LEN = 20;
+// const MAX_QUEUE_LEN = 20;
 
 export async function POST(req: NextRequest) {
   try {
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         url: data.url,
         extractedId: videoId,
         type: "Youtube",
-        title: ytRes?.title ?? "can't find video",
+        title: ytRes?.title ?? "cannot find video",
         smallImg:
           (thumbnails.length > 1
             ? thumbnails[thumbnails.length - 2].url
@@ -180,11 +180,7 @@ export async function GET(req: NextRequest) {
       ({
         _count,
         ...rest
-      }: {
-        _count: { upvotes: number };
-        upvotes: any[];
-        [key: string]: any;
-      }) => ({
+      }: StreamWithCount) => ({
         ...rest,
         upvotes: _count.upvotes,
         haveUpvoted: rest.upvotes.length ? true : false,

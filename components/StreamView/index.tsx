@@ -223,7 +223,6 @@ export default function StreamView({ creatorId, playVideo }: StreamViewProps) {
                     />
                   ) : (
                     <>
-                      import Image from "next/image"; // Inside your JSX:
                       <Image
                         src={currentVideo.bigImg}
                         alt={currentVideo.title ?? "Video preview"}
