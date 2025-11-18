@@ -25,6 +25,7 @@ export function Spotlight({
   const springX = useSpring(mouseX, { stiffness: 150, damping: 30 });
   const springY = useSpring(mouseY, { stiffness: 150, damping: 30 });
 
+  
   const background = useMotionTemplate`
     radial-gradient(
       400px circle at ${springX}px ${springY}px,

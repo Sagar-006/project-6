@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import db from "@/app/lib/db";
 import { getSession } from "@/app/lib/session";
 import { NextRequest, NextResponse } from "next/server";
@@ -38,11 +40,11 @@ export async function POST(req: NextRequest) {
       message: "Done!",
     });
   } catch (e) {
-    console.error(e)
+    console.error(e);
     return NextResponse.json(
       {
         message: "Error while Downvoting",
-        error:e
+        error: e,
       },
       {
         status: 403,

@@ -1,17 +1,23 @@
 "use client";
-export const dynamic = "force-dynamic";
+
 import React from "react";
 import { authClient } from "../../lib/auth-client";
 import Image from "next/image";
 
 export default function Signin() {
-  const callbackURL = window.location.href;
+  const [callbackURL, setCallbackURL] = React.useState("");
+
+  React.useEffect(() => {
+    setCallbackURL(window.location.href);
+  }, []);
+
   const handleGoogleSignin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: callbackURL,
+      callbackURL,
     });
   };
+
   return (
     <div className="flex items-center justify-center h-screen">
       <button

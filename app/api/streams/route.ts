@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getSession } from "@/app/lib/session";
 import { YT_REGEX } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -176,16 +178,11 @@ export async function GET(req: NextRequest) {
   ]);
 
   return NextResponse.json({
-    streams: streams.map(
-      ({
-        _count,
-        ...rest
-      }: StreamWithCount) => ({
-        ...rest,
-        upvotes: _count.upvotes,
-        haveUpvoted: rest.upvotes.length ? true : false,
-      })
-    ),
+    streams: streams.map(({ _count, ...rest }: StreamWithCount) => ({
+      ...rest,
+      upvotes: _count.upvotes,
+      haveUpvoted: rest.upvotes.length ? true : false,
+    })),
     activeStream,
   });
 }

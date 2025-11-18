@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import db from "@/app/lib/db";
 import { getSession } from "@/app/lib/session";
 import { NextRequest, NextResponse } from "next/server";
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "Error while upvoting",
-        error:e
+        error: e,
       },
       {
         status: 403,
