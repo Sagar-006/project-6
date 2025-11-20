@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { authClient } from "../../lib/auth-client";
 import Image from "next/image";
+import { authClient } from "../../lib/auth-client";
 
 export default function Signin() {
   const [callbackURL, setCallbackURL] = React.useState("");
@@ -12,10 +12,14 @@ export default function Signin() {
   }, []);
 
   const handleGoogleSignin = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL,
-    });
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL,
+      });
+    } catch (error) {
+      console.error("Google login error:", error);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
+export const dynamic = "force-dynamic";
 
-import Link from "next/link"
+import Link from "next/link";
 import { Button } from "./ui/button";
 import { Logout } from "./Logout";
 import ThemeToggle from "./ThemeToggle";
@@ -16,7 +17,11 @@ type SessionType = {
   // add user if needed
   // user?: { ... };
 };
-export default async function Navbarclient({session}:{session:SessionType | null})  {
+export default async function Navbarclient({
+  session,
+}: {
+  session: SessionType | null;
+}) {
   // const session = await getSession();
   return (
     <nav className="fixed top-0 left-0 w-full z-50  px-8 py-4 flex justify-between items-center">
@@ -27,7 +32,7 @@ export default async function Navbarclient({session}:{session:SessionType | null
         <div>
           {session ? (
             <div>
-              <Logout >Logout</Logout>
+              <Logout>Logout</Logout>
             </div>
           ) : (
             <div className="flex gap-x-4 text-white">
@@ -38,11 +43,9 @@ export default async function Navbarclient({session}:{session:SessionType | null
           )}
         </div>
         <div>
-          <ThemeToggle/>
+          <ThemeToggle />
         </div>
       </div>
     </nav>
   );
 }
-
-
